@@ -1,0 +1,25 @@
+{
+    "name": "crafting-interpreters",
+    "private": true,
+    "version": "0.0.0",
+    "description": "Code and resources for the book craftinginterpreters.com",
+    "main": "build/index.js",
+    "scripts": {
+        "build": "esbuild tlox/index.ts --bundle --outfile=build/index.js --sourcemap",
+        "build:production": "esbuild tlox/index.ts --bundle --outfile=build/index.js --minify",
+        "clean": "rm -rf build",
+        "start": "node build/index.js"
+    },
+    "author": "Gary Blackwood <gary@garyblackwood.co.uk>",
+    "license": "MIT",
+    "devDependencies": {
+        "@typescript-eslint/eslint-plugin": "^5.47.1",
+        "@typescript-eslint/parser": "^5.47.1",
+        "esbuild": "^0.16.11",
+        "eslint": "^8.30.0",
+        "eslint-config-prettier": "^8.5.0",
+        "eslint-plugin-prettier": "^4.2.1",
+        "prettier": "^2.8.1",
+        "typescript": "^4.9.4"
+    }
+}
