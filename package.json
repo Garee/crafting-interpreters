@@ -5,16 +5,17 @@
     "description": "Code and resources for the book craftinginterpreters.com",
     "main": "build/index.js",
     "scripts": {
-        "build": "esbuild tlox/index.ts --bundle --outfile=build/index.js --sourcemap",
-        "build:production": "esbuild tlox/index.ts --bundle --outfile=build/index.js --minify",
+        "build": "NODE_ENV=development node esbuild.js",
+        "build:production": "NODE_ENV=production node esbuild.js",
         "clean": "rm -rf build",
-        "dev": "npm run build -- --watch",
-        "lint": "eslint tlox/**/*.ts",
-        "start": "node build/index.js"
+        "lint": "eslint -c .eslintrc.json --fix tlox/**/*.ts",
+        "tlox": "node build/tlox.js",
+        "tsc": "tsc --noEmit"
     },
     "author": "Gary Blackwood <gary@garyblackwood.co.uk>",
     "license": "MIT",
     "devDependencies": {
+        "@types/node": "^18.11.18",
         "@typescript-eslint/eslint-plugin": "^5.47.1",
         "@typescript-eslint/parser": "^5.47.1",
         "esbuild": "^0.16.11",
