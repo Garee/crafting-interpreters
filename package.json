@@ -8,6 +8,8 @@
         "build": "esbuild tlox/index.ts --bundle --outfile=build/index.js --sourcemap",
         "build:production": "esbuild tlox/index.ts --bundle --outfile=build/index.js --minify",
         "clean": "rm -rf build",
+        "dev": "npm run build -- --watch",
+        "lint": "eslint tlox/**/*.ts",
         "start": "node build/index.js"
     },
     "author": "Gary Blackwood <gary@garyblackwood.co.uk>",
