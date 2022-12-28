@@ -1,4 +1,5 @@
 import { TokenType } from "./enums";
+import ScanError from "./errors/scan-error";
 import Token from "./token";
 import { isAlphaNumeric, isDigit } from "./util";
 
@@ -108,7 +109,7 @@ class Scanner {
                     return;
                 }
 
-                throw new Error(`Unexpected character '${ch}'.`);
+                throw new ScanError(ch, this.line);
         }
     }
 
@@ -164,7 +165,7 @@ class Scanner {
         }
 
         if (this.isAtEnd()) {
-            throw new Error("Unterminated string.");
+            throw new ScanError(this.peek(), this.line, "Unterminated string.");
         }
 
         this.advance();

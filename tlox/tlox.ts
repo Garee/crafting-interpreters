@@ -1,6 +1,7 @@
 import { readFile } from "fs/promises";
 import { createInterface } from "readline/promises";
 import ParseError from "./errors/parse-error";
+import ScanError from "./errors/scan-error";
 import Parser from "./parser";
 import Scanner from "./scanner";
 import AstPrinter from "./visitors/ast-printer";
@@ -24,14 +25,17 @@ class TLox {
     }
 
     private run(code: string): void {
-        const scanner = new Scanner(code);
-        const tokens = scanner.scanTokens();
-        const parser = new Parser(tokens);
-
         try {
+            const scanner = new Scanner(code);
+            const tokens = scanner.scanTokens();
+            const parser = new Parser(tokens);
             const expr = parser.parse();
             console.log(new AstPrinter().print(expr));
         } catch (err) {
+            if (err instanceof ScanError) {
+                this.handleError(err.line, err.message);
+            }
+
             if (err instanceof ParseError) {
                 this.handleError(err.token.line, err.message);
             }
