@@ -1,10 +1,10 @@
 import { TokenType } from "./enums";
 
 class Token {
-    private type: TokenType;
-    private lexeme: string;
-    private literal: string | number | null;
-    private line: number;
+    public type: TokenType;
+    public lexeme: string;
+    public literal: string | number | null;
+    public line: number;
 
     constructor(
         type: TokenType,

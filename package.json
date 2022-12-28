@@ -10,7 +10,8 @@
         "clean": "rm -rf build",
         "lint": "eslint -c .eslintrc.json --fix tlox/**/*.ts",
         "tlox": "node build/tlox.js",
-        "tsc": "tsc --noEmit"
+        "tsc": "tsc --noEmit",
+        "tsc:watch": "tsc --noEmit --watch"
     },
     "author": "Gary Blackwood <gary@garyblackwood.co.uk>",
     "license": "MIT",
