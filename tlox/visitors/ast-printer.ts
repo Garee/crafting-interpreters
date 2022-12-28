@@ -5,9 +5,9 @@ import Literal from "../expressions/literal";
 import Unary from "../expressions/unary";
 import Visitor from "./visitor";
 
-class AstPrinter extends Visitor {
+class AstPrinter extends Visitor<string> {
     public print(expr: Expr): string {
-        return expr.accept(this);
+        return expr.accept<string>(this);
     }
 
     public visitBinaryExpr(expr: Binary): string {
@@ -33,7 +33,7 @@ class AstPrinter extends Visitor {
     private parenthesise(name: string, ...exprs: Expr[]): string {
         let s = `(${name}`;
         exprs.forEach((expr) => {
-            s += ` ${expr.accept(this)}`;
+            s += ` ${expr.accept<string>(this)}`;
         });
         return `${s})`;
     }

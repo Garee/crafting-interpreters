@@ -11,7 +11,7 @@ if (process.argv.length == 3) {
     const script: string = process.argv[2];
     tlox.runScript(script);
     if (tlox.hasError) {
-        process.exit(65);
+        process.exit(tlox.hasRuntimeError ? 70 : 65);
     }
 } else {
     tlox.prompt();

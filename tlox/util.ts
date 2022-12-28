@@ -15,3 +15,11 @@ export function isAlpha(s: string): boolean {
 export function isAlphaNumeric(s: string): boolean {
     return isDigit(s) || isAlpha(s);
 }
+
+export function isString(val: string | number | boolean | null): val is string {
+    return typeof val === "string";
+}
+
+export function isNumber(val: string | number | boolean | null): val is number {
+    return typeof val === "number";
+}

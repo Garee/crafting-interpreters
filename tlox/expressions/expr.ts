@@ -1,7 +1,7 @@
 import Visitor from "../visitors/visitor";
 
 abstract class Expr {
-    abstract accept(visitor: Visitor): any;
+    abstract accept<T>(visitor: Visitor<T>): T;
 }
 
 export default Expr;

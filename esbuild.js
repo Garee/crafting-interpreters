@@ -6,6 +6,7 @@ const options = {
     entryPoints: ["./tlox/index.ts"],
     outfile: "./build/tlox.js",
     bundle: true,
+    watch: !isProduction,
     minify: isProduction,
     sourcemap: !isProduction,
     external: ["fs/promises", "readline/promises"],

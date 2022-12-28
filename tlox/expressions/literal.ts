@@ -9,7 +9,7 @@ class Literal extends Expr {
         this.value = value;
     }
 
-    accept(visitor: Visitor): string {
+    accept<T>(visitor: Visitor<T>): T {
         return visitor.visitLiteralExpr(this);
     }
 }

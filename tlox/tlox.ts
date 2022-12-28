@@ -1,13 +1,16 @@
 import { readFile } from "fs/promises";
 import { createInterface } from "readline/promises";
 import ParseError from "./errors/parse-error";
+import RuntimeError from "./errors/runetime-error";
 import ScanError from "./errors/scan-error";
 import Parser from "./parser";
 import Scanner from "./scanner";
-import AstPrinter from "./visitors/ast-printer";
+import Interpreter from "./visitors/interpreter";
 
 class TLox {
     public hasError = false;
+    public hasRuntimeError = false;
+    private interpreter = new Interpreter();
 
     public async runScript(script: string): Promise<void> {
         const contents = await this.readScript(script);
@@ -30,13 +33,18 @@ class TLox {
             const tokens = scanner.scanTokens();
             const parser = new Parser(tokens);
             const expr = parser.parse();
-            console.log(new AstPrinter().print(expr));
+            const result = this.interpreter.interpret(expr);
+            console.log(result);
         } catch (err) {
             if (err instanceof ScanError) {
                 this.handleError(err.line, err.message);
             }
 
             if (err instanceof ParseError) {
+                this.handleError(err.token.line, err.message);
+            }
+
+            if (err instanceof RuntimeError) {
                 this.handleError(err.token.line, err.message);
             }
         }
@@ -46,8 +54,15 @@ class TLox {
         return readFile(script, { encoding: "utf8" });
     }
 
-    private handleError(line: number, message: string): void {
+    private handleError(
+        line: number,
+        message: string,
+        opts = { runtime: true }
+    ): void {
         this.hasError = true;
+        if (opts.runtime) {
+            this.hasRuntimeError = true;
+        }
         console.error(`[line ${line}] error: ${message}`);
     }
 }
