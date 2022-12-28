@@ -5,8 +5,8 @@
     "description": "Code and resources for the book craftinginterpreters.com",
     "main": "build/index.js",
     "scripts": {
-        "build": "NODE_ENV=development node esbuild.js",
-        "build:production": "NODE_ENV=production node esbuild.js",
+        "dev": "NODE_ENV=development node esbuild.js",
+        "build": "NODE_ENV=production node esbuild.js",
         "clean": "rm -rf build",
         "lint": "eslint -c .eslintrc.json --fix tlox/**/*.ts",
         "tlox": "node build/tlox.js",

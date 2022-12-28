@@ -18,8 +18,9 @@ class TLox {
     }
 
     public async prompt(): Promise<void> {
-        const reader = createInterface(process.stdin);
+        const reader = createInterface(process.stdin, process.stdout);
         const prompting = true;
+        console.log("Welcome to the Lox interpreter!");
         while (prompting) {
             const code = await reader.question("> ");
             this.run(code);
