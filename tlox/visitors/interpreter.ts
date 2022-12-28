@@ -5,18 +5,30 @@ import Expr from "../expressions/expr";
 import Grouping from "../expressions/grouping";
 import Literal from "../expressions/literal";
 import Unary from "../expressions/unary";
+import ExprStmt from "../statements/expr-stmt";
+import Print from "../statements/print";
+import Stmt from "../statements/stmt";
 import { isNumber, isString } from "../util";
 import Visitor from "./visitor";
 
 class Interpreter extends Visitor<string | number | boolean | null> {
-    public interpret(expr: Expr): string {
-        const result = this.evaluate(expr);
+    public interpret(statements: Stmt[]): void {
+        statements.forEach((stmt) => this.execute(stmt));
+    }
 
-        if (result === null) {
-            return "nil";
-        }
+    public execute(stmt: Stmt): void {
+        stmt.accept(this);
+    }
 
-        return `${result}`;
+    public visitExprStmt(stmt: ExprStmt): string | number | boolean | null {
+        this.evaluate(stmt.expr);
+        return null;
+    }
+
+    public visitPrintStmt(stmt: Print): string | number | boolean | null {
+        const result = this.evaluate(stmt.expr);
+        console.log(this.stringify(result));
+        return null;
     }
 
     public visitBinaryExpr(expr: Binary): string | number | boolean | null {
@@ -147,6 +159,14 @@ class Interpreter extends Visitor<string | number | boolean | null> {
         }
 
         return true;
+    }
+
+    public stringify(val: string | number | boolean | null): string {
+        if (val === null) {
+            return "nil";
+        }
+
+        return `${val}`;
     }
 }
 

@@ -3,11 +3,21 @@ import Expr from "../expressions/expr";
 import Grouping from "../expressions/grouping";
 import Literal from "../expressions/literal";
 import Unary from "../expressions/unary";
+import ExprStmt from "../statements/expr-stmt";
+import Print from "../statements/print";
 import Visitor from "./visitor";
 
 class AstPrinter extends Visitor<string> {
     public print(expr: Expr): string {
         return expr.accept<string>(this);
+    }
+
+    public visitExprStmt(stmt: ExprStmt): string {
+        return this.parenthesise("stmt", stmt.expr);
+    }
+
+    public visitPrintStmt(stmt: Print): string {
+        return this.parenthesise("print", stmt.expr);
     }
 
     public visitBinaryExpr(expr: Binary): string {

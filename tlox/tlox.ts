@@ -33,9 +33,8 @@ class TLox {
             const scanner = new Scanner(code);
             const tokens = scanner.scanTokens();
             const parser = new Parser(tokens);
-            const expr = parser.parse();
-            const result = this.interpreter.interpret(expr);
-            console.log(result);
+            const statements = parser.parse();
+            this.interpreter.interpret(statements);
         } catch (err) {
             if (err instanceof ScanError) {
                 this.handleError(err.line, err.message);

@@ -198,8 +198,58 @@ class Scanner {
         const text = this.source.slice(this.start, this.current);
 
         let type = TokenType.Identifier;
-        if (text in TokenType) {
-            type = TokenType[text as keyof typeof TokenType];
+
+        switch (text) {
+            case "print":
+                type = TokenType.Print;
+                break;
+            case "and":
+                type = TokenType.And;
+                break;
+            case "class":
+                type = TokenType.Class;
+                break;
+            case "else":
+                type = TokenType.Else;
+                break;
+            case "true":
+                type = TokenType.True;
+                break;
+            case "false":
+                type = TokenType.False;
+                break;
+            case "fun":
+                type = TokenType.Fun;
+                break;
+            case "for":
+                type = TokenType.For;
+                break;
+            case "if":
+                type = TokenType.If;
+                break;
+            case "nil":
+                type = TokenType.Nil;
+                break;
+            case "or":
+                type = TokenType.Or;
+                break;
+            case "return":
+                type = TokenType.Return;
+                break;
+            case "super":
+                type = TokenType.Super;
+                break;
+            case "this":
+                type = TokenType.This;
+                break;
+            case "var":
+                type = TokenType.Var;
+                break;
+            case "while":
+                type = TokenType.While;
+                break;
+            default:
+                break;
         }
 
         this.addToken(type);

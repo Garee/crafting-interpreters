@@ -5,6 +5,9 @@ import Expr from "./expressions/expr";
 import Grouping from "./expressions/grouping";
 import Literal from "./expressions/literal";
 import Unary from "./expressions/unary";
+import ExprStmt from "./statements/expr-stmt";
+import Print from "./statements/print";
+import Stmt from "./statements/stmt";
 import Token from "./token";
 
 class Parser {
@@ -15,8 +18,32 @@ class Parser {
         this.tokens = tokens;
     }
 
-    public parse(): Expr {
-        return this.expr();
+    public parse(): Stmt[] {
+        const statements: Stmt[] = [];
+        while (!this.isAtEnd()) {
+            statements.push(this.statement());
+        }
+        return statements;
+    }
+
+    private statement(): Stmt {
+        if (this.match(TokenType.Print)) {
+            return this.printStatement();
+        }
+
+        return this.exprStatement();
+    }
+
+    private printStatement(): Stmt {
+        const expr = this.expr();
+        this.consume(TokenType.SemiColon);
+        return new Print(expr);
+    }
+
+    private exprStatement(): Stmt {
+        const expr = this.expr();
+        this.consume(TokenType.SemiColon);
+        return new ExprStmt(expr);
     }
 
     private expr(): Expr {

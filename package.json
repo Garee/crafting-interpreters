@@ -2,6 +2,9 @@
     "name": "crafting-interpreters",
     "private": true,
     "version": "0.0.0",
+    "engines": {
+        "node": ">=18"
+    },
     "description": "Code and resources for the book craftinginterpreters.com",
     "main": "build/index.js",
     "scripts": {
