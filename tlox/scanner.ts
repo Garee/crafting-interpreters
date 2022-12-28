@@ -26,19 +26,37 @@ class Scanner {
 
     private scanToken(): void {
         const ch = this.advance();
-        let tokenType = TokenType[ch as keyof typeof TokenType];
+        let tokenType: TokenType;
         switch (ch) {
             case TokenType.LeftParen:
+                this.addToken(TokenType.LeftParen);
+                break;
             case TokenType.RightParen:
+                this.addToken(TokenType.RightParen);
+                break;
             case TokenType.LeftBrace:
+                this.addToken(TokenType.LeftBrace);
+                break;
             case TokenType.RightBrace:
+                this.addToken(TokenType.RightBrace);
+                break;
             case TokenType.Comma:
+                this.addToken(TokenType.Comma);
+                break;
             case TokenType.Dot:
+                this.addToken(TokenType.Dot);
+                break;
             case TokenType.Minus:
+                this.addToken(TokenType.Minus);
+                break;
             case TokenType.Plus:
+                this.addToken(TokenType.Plus);
+                break;
             case TokenType.SemiColon:
+                this.addToken(TokenType.SemiColon);
+                break;
             case TokenType.Star:
-                this.addToken(tokenType);
+                this.addToken(TokenType.Star);
                 break;
             case TokenType.Bang:
                 tokenType = this.advanceIfMatch(TokenType.Equal)
@@ -67,6 +85,8 @@ class Scanner {
             case TokenType.Slash:
                 if (this.advanceIfMatch(TokenType.Slash)) {
                     this.advanceToEol();
+                } else {
+                    this.addToken(TokenType.Slash);
                 }
                 break;
             case " ":
@@ -165,7 +185,7 @@ class Scanner {
             }
         }
 
-        const num = Number(this.source.slice(this.start + 1, this.current - 1));
+        const num = Number(this.source.slice(this.start, this.current));
         this.addToken(TokenType.Number, num);
     }
 

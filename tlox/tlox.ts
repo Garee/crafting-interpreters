@@ -1,6 +1,9 @@
 import { readFile } from "fs/promises";
 import { createInterface } from "readline/promises";
+import ParseError from "./errors/parse-error";
+import Parser from "./parser";
 import Scanner from "./scanner";
+import AstPrinter from "./visitors/ast-printer";
 
 class TLox {
     public hasError = false;
@@ -23,8 +26,15 @@ class TLox {
     private run(code: string): void {
         const scanner = new Scanner(code);
         const tokens = scanner.scanTokens();
-        for (const t of tokens) {
-            console.log(t);
+        const parser = new Parser(tokens);
+
+        try {
+            const expr = parser.parse();
+            console.log(new AstPrinter().print(expr));
+        } catch (err) {
+            if (err instanceof ParseError) {
+                this.handleError(err.token.line, err.message);
+            }
         }
     }
 

@@ -12,8 +12,8 @@ class Unary extends Expr {
         this.right = right;
     }
 
-    accept(visitor: Visitor) {
-        visitor.visit(this);
+    accept(visitor: Visitor): string {
+        return visitor.visitUnaryExpr(this);
     }
 }
 

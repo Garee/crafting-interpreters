@@ -9,8 +9,8 @@ class Grouping extends Expr {
         this.expr = expr;
     }
 
-    accept(visitor: Visitor) {
-        visitor.visit(this);
+    accept(visitor: Visitor): string {
+        return visitor.visitGroupingExpr(this);
     }
 }
 

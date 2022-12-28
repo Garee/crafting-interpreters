@@ -5,8 +5,8 @@ import Literal from "../expressions/literal";
 import Unary from "../expressions/unary";
 import Visitor from "./visitor";
 
-class AstVisitor extends Visitor {
-    public print(expr: Expr): void {
+class AstPrinter extends Visitor {
+    public print(expr: Expr): string {
         return expr.accept(this);
     }
 
@@ -39,4 +39,4 @@ class AstVisitor extends Visitor {
     }
 }
 
-export default AstVisitor;
+export default AstPrinter;

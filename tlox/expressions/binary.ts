@@ -14,8 +14,8 @@ class Binary extends Expr {
         this.right = right;
     }
 
-    public accept(visitor: Visitor): void {
-        visitor.visit(this);
+    public accept(visitor: Visitor): string {
+        return visitor.visitBinaryExpr(this);
     }
 }
 

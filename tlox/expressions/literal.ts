@@ -2,15 +2,15 @@ import Visitor from "../visitors/visitor";
 import Expr from "./expr";
 
 class Literal extends Expr {
-    public value: number | string | null;
+    public value: number | string | boolean | null;
 
-    constructor(value: number | string | null) {
+    constructor(value: number | string | boolean | null) {
         super();
         this.value = value;
     }
 
-    accept(visitor: Visitor) {
-        visitor.visit(this);
+    accept(visitor: Visitor): string {
+        return visitor.visitLiteralExpr(this);
     }
 }
 
