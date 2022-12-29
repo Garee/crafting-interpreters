@@ -45,3 +45,8 @@ export enum FunctionType {
     Function,
     Method,
 }
+
+export enum ClassType {
+    None,
+    Class,
+}

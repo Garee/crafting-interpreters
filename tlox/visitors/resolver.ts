@@ -1,4 +1,4 @@
-import { FunctionType } from "../enums";
+import { ClassType, FunctionType } from "../enums";
 import ResolveError from "../errors/resolve-error";
 import Assignment from "../expressions/assignment";
 import Binary from "../expressions/binary";
@@ -30,6 +30,7 @@ class Resolver extends Visitor<void> {
     private readonly interpreter: Interpreter;
     private scopes: Map<string, boolean>[] = [];
     private currentFunction = FunctionType.None;
+    private currentClass = ClassType.None;
 
     constructor(interpreter: Interpreter) {
         super();
@@ -37,6 +38,13 @@ class Resolver extends Visitor<void> {
     }
 
     public visitThisExpr(expr: This): void {
+        if (this.currentClass !== ClassType.Class) {
+            throw new ResolveError(
+                expr.keyword,
+                "Can't use 'this' outside of a class."
+            );
+        }
+
         this.resolveLocal(expr, expr.keyword);
     }
 
@@ -50,6 +58,9 @@ class Resolver extends Visitor<void> {
     }
 
     public visitClassStmt(stmt: Class): void {
+        const enclosingClass = this.currentClass;
+        this.currentClass = ClassType.Class;
+
         this.declare(stmt.name);
         this.define(stmt.name);
         this.beginScope();
@@ -62,6 +73,8 @@ class Resolver extends Visitor<void> {
         });
 
         this.endScope();
+
+        this.currentClass = enclosingClass;
     }
 
     public visitBinaryExpr(expr: Binary): void {
