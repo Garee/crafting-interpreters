@@ -6,6 +6,7 @@ import Binary from "../expressions/binary";
 import Expr from "../expressions/expr";
 import Grouping from "../expressions/grouping";
 import Literal from "../expressions/literal";
+import Logical from "../expressions/logical";
 import Unary from "../expressions/unary";
 import Var from "../expressions/var";
 import Block from "../statements/block";
@@ -26,6 +27,19 @@ class Interpreter extends Visitor<string | number | boolean | null> {
 
     public execute(stmt: Stmt): void {
         stmt.accept(this);
+    }
+
+    public visitLogicalExpr(expr: Logical): string | number | boolean | null {
+        const result = this.evaluate(expr.left);
+        if (expr.operator.type === TokenType.Or) {
+            if (this.isTruthy(result)) {
+                return result;
+            }
+        } else if (!this.isTruthy(result)) {
+            return result;
+        }
+
+        return this.evaluate(expr.right);
     }
 
     public visitIfStmt(stmt: If): string | number | boolean | null {

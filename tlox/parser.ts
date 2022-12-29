@@ -5,6 +5,7 @@ import Binary from "./expressions/binary";
 import Expr from "./expressions/expr";
 import Grouping from "./expressions/grouping";
 import Literal from "./expressions/literal";
+import Logical from "./expressions/logical";
 import Unary from "./expressions/unary";
 import Var from "./expressions/var";
 import Block from "./statements/block";
@@ -126,7 +127,7 @@ class Parser {
     }
 
     private assignment(): Expr {
-        const expr = this.equality();
+        const expr = this.or();
 
         if (this.match(TokenType.Equal)) {
             const equals = this.previous();
@@ -136,6 +137,30 @@ class Parser {
             }
 
             this.handleError(equals, "Invalid assignment target.");
+        }
+
+        return expr;
+    }
+
+    private or(): Expr {
+        const expr = this.and();
+
+        while (this.match(TokenType.Or)) {
+            const op = this.previous();
+            const right = this.and();
+            return new Logical(expr, op, right);
+        }
+
+        return expr;
+    }
+
+    private and(): Expr {
+        const expr = this.equality();
+
+        while (this.match(TokenType.And)) {
+            const op = this.previous();
+            const right = this.equality();
+            return new Logical(expr, op, right);
         }
 
         return expr;
