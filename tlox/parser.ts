@@ -2,6 +2,7 @@ import { TokenType } from "./enums";
 import ParseError from "./errors/parse-error";
 import Assignment from "./expressions/assignment";
 import Binary from "./expressions/binary";
+import Call from "./expressions/call";
 import Expr from "./expressions/expr";
 import Grouping from "./expressions/grouping";
 import Literal from "./expressions/literal";
@@ -10,8 +11,10 @@ import Unary from "./expressions/unary";
 import Var from "./expressions/var";
 import Block from "./statements/block";
 import ExprStmt from "./statements/expr-stmt";
+import Fun from "./statements/fun";
 import If from "./statements/if";
 import Print from "./statements/print";
+import Return from "./statements/return";
 import Stmt from "./statements/stmt";
 import VarStmt from "./statements/var-stmt";
 import While from "./statements/while";
@@ -20,6 +23,8 @@ import Token from "./token";
 class Parser {
     public tokens: Token[];
     public current = 0;
+
+    private static readonly MAX_ARGS = 255;
 
     constructor(tokens: Token[]) {
         this.tokens = tokens;
@@ -53,7 +58,7 @@ class Parser {
         }
     }
 
-    private variable(): Stmt | undefined {
+    private variable(): VarStmt | undefined {
         const name = this.consume(TokenType.Identifier);
 
         let initialiser: Expr | undefined = undefined;
@@ -88,7 +93,63 @@ class Parser {
             return this.forStatement();
         }
 
+        if (this.match(TokenType.Fun)) {
+            const fun = this.function();
+            if (fun) {
+                return fun;
+            }
+        }
+
+        if (this.match(TokenType.Return)) {
+            const stmt = this.returnStatement();
+            if (stmt) {
+                return stmt;
+            }
+        }
+
         return this.exprStatement();
+    }
+
+    private returnStatement(): Return | undefined {
+        const keyword = this.previous();
+        let val: Expr | undefined;
+        if (!this.check(TokenType.SemiColon)) {
+            val = this.expr();
+        }
+        this.consume(TokenType.SemiColon);
+        if (val) {
+            return new Return(keyword, val);
+        }
+    }
+
+    private function(): Fun | undefined {
+        const name = this.consume(TokenType.Identifier);
+        this.consume(TokenType.LeftParen);
+
+        const params: Token[] = [];
+        if (!this.check(TokenType.RightParen)) {
+            do {
+                if (params.length >= Parser.MAX_ARGS) {
+                    throw new ParseError(
+                        this.peek(),
+                        `Can't have more than ${Parser.MAX_ARGS} parameters.`
+                    );
+                }
+
+                const param = this.consume(TokenType.Identifier);
+                if (param) {
+                    params.push(param);
+                }
+            } while (this.match(TokenType.Comma));
+        }
+
+        this.consume(TokenType.RightParen);
+        this.consume(TokenType.LeftBrace);
+
+        const body = this.blockStatement();
+        if (name) {
+            return new Fun(name, params, body);
+        }
     }
 
     private forStatement(): Stmt {
@@ -135,7 +196,7 @@ class Parser {
         return body;
     }
 
-    private whileStatement(): Stmt {
+    private whileStatement(): While {
         this.consume(TokenType.LeftParen);
         const condition = this.expr();
         this.consume(TokenType.RightParen);
@@ -143,7 +204,7 @@ class Parser {
         return new While(condition, body);
     }
 
-    private ifStatement(): Stmt {
+    private ifStatement(): If {
         this.consume(TokenType.LeftParen);
         const condition = this.expr();
         this.consume(TokenType.RightParen);
@@ -157,7 +218,7 @@ class Parser {
         return new If(condition, then, els);
     }
 
-    private blockStatement(): Stmt {
+    private blockStatement(): Block {
         const statements: Stmt[] = [];
 
         while (!this.check(TokenType.RightBrace) && !this.isAtEnd()) {
@@ -171,13 +232,13 @@ class Parser {
         return new Block(statements);
     }
 
-    private printStatement(): Stmt {
+    private printStatement(): Print {
         const expr = this.expr();
         this.consume(TokenType.SemiColon);
         return new Print(expr);
     }
 
-    private exprStatement(): Stmt {
+    private exprStatement(): ExprStmt {
         const expr = this.expr();
         this.consume(TokenType.SemiColon);
         return new ExprStmt(expr);
@@ -290,7 +351,40 @@ class Parser {
                 return new Unary(op, right);
             }
         }
-        return this.primary();
+        return this.call();
+    }
+
+    private call(): Expr {
+        let expr = this.primary();
+        while (this.match(TokenType.LeftParen)) {
+            const result = this.doCall(expr);
+            if (result) {
+                expr = result;
+            }
+        }
+
+        return expr;
+    }
+
+    private doCall(callee: Expr): Expr | undefined {
+        const args: Expr[] = [];
+        if (!this.check(TokenType.RightParen)) {
+            do {
+                args.push(this.expr());
+            } while (this.match(TokenType.Comma));
+        }
+
+        if (args.length >= Parser.MAX_ARGS) {
+            throw new ParseError(
+                this.peek(),
+                `Can't have more than ${Parser.MAX_ARGS} arguments.`
+            );
+        }
+
+        const paren = this.consume(TokenType.RightParen);
+        if (paren) {
+            return new Call(callee, paren, args);
+        }
     }
 
     private primary(): Expr {

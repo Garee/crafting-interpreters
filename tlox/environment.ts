@@ -1,3 +1,4 @@
+import Callable from "./callable";
 import RuntimeError from "./errors/runtime-error";
 import Token from "./token";
 
@@ -9,11 +10,14 @@ class Environment {
         this.enclosing = enclosing;
     }
 
-    public define(name: Token, val: string | number | boolean | null): void {
-        this.values.set(name.lexeme, val);
+    public define(
+        name: string,
+        val: string | number | boolean | Callable | null
+    ): void {
+        this.values.set(name, val);
     }
 
-    public get(name: Token): string | number | boolean | null {
+    public get(name: Token): string | number | boolean | Callable | null {
         if (this.values.has(name.lexeme)) {
             return this.values.get(name.lexeme);
         }
@@ -28,7 +32,10 @@ class Environment {
         );
     }
 
-    public assign(name: Token, val: string | number | boolean | null): void {
+    public assign(
+        name: Token,
+        val: string | number | boolean | Callable | null
+    ): void {
         if (this.values.has(name.lexeme)) {
             this.values.set(name.lexeme, val);
             return;
