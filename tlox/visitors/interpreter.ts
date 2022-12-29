@@ -84,7 +84,11 @@ class Interpreter extends Visitor<LoxValue> {
         this.environment.define(stmt.name.lexeme, null);
 
         const methods = stmt.methods.reduce((acc, m) => {
-            acc.set(m.name.lexeme, new LoxFunction(m, this.environment));
+            const isConstructor = m.name.lexeme === "init";
+            acc.set(
+                m.name.lexeme,
+                new LoxFunction(m, this.environment, isConstructor)
+            );
             return acc;
         }, new Map<string, LoxFunction>());
 

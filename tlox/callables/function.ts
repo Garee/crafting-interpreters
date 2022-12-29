@@ -1,7 +1,9 @@
+import { TokenType } from "../enums";
 import Environment from "../environment";
 import ReturnError from "../errors/return-error";
 import Instance from "../instance";
 import Fun from "../statements/fun";
+import Token from "../token";
 import { LoxValue } from "../types";
 import Interpreter from "../visitors/interpreter";
 import Callable from "./callable";
@@ -9,11 +11,13 @@ import Callable from "./callable";
 class LoxFunction extends Callable {
     private readonly declaration: Fun;
     private readonly closure: Environment;
+    private readonly isConstructor: boolean = false;
 
-    constructor(declaration: Fun, closure: Environment) {
+    constructor(declaration: Fun, closure: Environment, isConstructor = false) {
         super();
         this.declaration = declaration;
         this.closure = closure;
+        this.isConstructor = isConstructor;
     }
 
     public call(interpreter: Interpreter, args: LoxValue[]): LoxValue {
@@ -25,8 +29,17 @@ class LoxFunction extends Callable {
             interpreter.executeBlock(this.declaration.body, environment);
         } catch (err) {
             if (err instanceof ReturnError) {
+                if (this.isConstructor) {
+                    const token = new Token(TokenType.This, "this", null, 0);
+                    return this.closure.getAt(token, 0);
+                }
                 return err.value;
             }
+        }
+
+        if (this.isConstructor) {
+            const token = new Token(TokenType.This, "this", null, 0);
+            return this.closure.getAt(token, 0);
         }
 
         return null;
@@ -35,7 +48,7 @@ class LoxFunction extends Callable {
     public bind(instance: Instance): LoxFunction {
         const env = new Environment(this.closure);
         env.define("this", instance);
-        return new LoxFunction(this.declaration, env);
+        return new LoxFunction(this.declaration, env, this.isConstructor);
     }
 
     public arity(): number {

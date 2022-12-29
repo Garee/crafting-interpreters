@@ -14,12 +14,16 @@ class Class extends Callable {
         this.methods = methods;
     }
 
-    public call(_interpreter: Interpreter, _args: LoxValue[]): LoxValue {
-        return new Instance(this);
+    public call(interpreter: Interpreter, args: LoxValue[]): LoxValue {
+        const instance = new Instance(this);
+        const constructor = this.findMethod("init");
+        constructor?.bind(instance).call(interpreter, args);
+        return instance;
     }
 
     public arity(): number {
-        return 0;
+        const constructor = this.findMethod("init");
+        return constructor?.arity() ?? 0;
     }
 
     public findMethod(name: string): LoxFunction | undefined {

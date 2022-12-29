@@ -43,6 +43,7 @@ export enum TokenType {
 export enum FunctionType {
     None,
     Function,
+    Constructor,
     Method,
 }
 

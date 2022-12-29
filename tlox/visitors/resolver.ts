@@ -69,7 +69,12 @@ class Resolver extends Visitor<void> {
         scope.set("this", true);
 
         stmt.methods.forEach((m) => {
-            this.resolveFunction(m, FunctionType.Method);
+            let type = FunctionType.Method;
+            if (m.name.lexeme === "init") {
+                type = FunctionType.Constructor;
+            }
+
+            this.resolveFunction(m, type);
         });
 
         this.endScope();
@@ -173,6 +178,12 @@ class Resolver extends Visitor<void> {
         }
 
         if (stmt.value) {
+            if (this.currentFunction === FunctionType.Constructor) {
+                throw new ResolveError(
+                    stmt.keyword,
+                    "Can't return a value from a constructor."
+                );
+            }
             this.resolveExpr(stmt.value);
         }
     }
