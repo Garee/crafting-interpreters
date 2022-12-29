@@ -1,3 +1,4 @@
+import Assignment from "../expressions/assignment";
 import Binary from "../expressions/binary";
 import Expr from "../expressions/expr";
 import Grouping from "../expressions/grouping";
@@ -14,14 +15,20 @@ class AstPrinter extends Visitor<string> {
         return expr.accept<string>(this);
     }
 
-    public visitVarStmt(_stmt: VarStmt): string {
-        // TODO:
-        return "";
+    public visitAssignmentExpr(expr: Assignment): string {
+        return this.parenthesise(`${expr.name.lexeme} =`, expr.val);
     }
 
-    public visitVarExpr(_expr: Var): string {
-        // TODO:
-        return "";
+    public visitVarStmt(stmt: VarStmt): string {
+        if (stmt.initialiser) {
+            return this.parenthesise("var", stmt.initialiser);
+        }
+
+        return "var";
+    }
+
+    public visitVarExpr(expr: Var): string {
+        return this.parenthesise("var", expr);
     }
 
     public visitExprStmt(stmt: ExprStmt): string {

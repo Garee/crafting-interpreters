@@ -1,6 +1,7 @@
 import { TokenType } from "../enums";
 import Environment from "../environment";
 import RuntimeError from "../errors/runtime-error";
+import Assignment from "../expressions/assignment";
 import Binary from "../expressions/binary";
 import Expr from "../expressions/expr";
 import Grouping from "../expressions/grouping";
@@ -23,6 +24,14 @@ class Interpreter extends Visitor<string | number | boolean | null> {
 
     public execute(stmt: Stmt): void {
         stmt.accept(this);
+    }
+
+    public visitAssignmentExpr(
+        expr: Assignment
+    ): string | number | boolean | null {
+        const val = this.evaluate(expr.val);
+        this.environment.assign(expr.name, val);
+        return val;
     }
 
     public visitVarStmt(stmt: VarStmt): string | number | boolean | null {

@@ -1,3 +1,4 @@
+import Assignment from "../expressions/assignment";
 import Binary from "../expressions/binary";
 import Grouping from "../expressions/grouping";
 import Literal from "../expressions/literal";
@@ -12,6 +13,7 @@ abstract class Visitor<T> {
     abstract visitGroupingExpr(expr: Grouping): T;
     abstract visitLiteralExpr(expr: Literal): T;
     abstract visitUnaryExpr(expr: Unary): T;
+    abstract visitAssignmentExpr(expr: Assignment): T;
     abstract visitVarExpr(expr: Var): T;
     abstract visitPrintStmt(stmt: Print): T;
     abstract visitExprStmt(stmt: ExprStmt): T;

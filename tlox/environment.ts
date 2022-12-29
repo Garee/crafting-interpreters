@@ -18,6 +18,15 @@ class Environment {
             `Undefined variable for '${name.lexeme}'.`
         );
     }
+
+    public assign(name: Token, val: string | number | boolean | null): void {
+        if (this.values.has(name.lexeme)) {
+            this.values.set(name.lexeme, val);
+            return;
+        }
+
+        throw new RuntimeError(name, `Undefined variable '${name.lexeme}'.`);
+    }
 }
 
 export default Environment;

@@ -1,5 +1,6 @@
 import { TokenType } from "./enums";
 import ParseError from "./errors/parse-error";
+import Assignment from "./expressions/assignment";
 import Binary from "./expressions/binary";
 import Expr from "./expressions/expr";
 import Grouping from "./expressions/grouping";
@@ -83,7 +84,23 @@ class Parser {
     }
 
     private expr(): Expr {
-        return this.equality();
+        return this.assignment();
+    }
+
+    private assignment(): Expr {
+        const expr = this.equality();
+
+        if (this.match(TokenType.Equal)) {
+            const equals = this.previous();
+            const val = this.assignment();
+            if (expr instanceof Var) {
+                return new Assignment(expr.name, val);
+            }
+
+            this.handleError(equals, "Invalid assignment target.");
+        }
+
+        return expr;
     }
 
     private equality(): Expr {
