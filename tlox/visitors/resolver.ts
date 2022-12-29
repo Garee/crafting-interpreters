@@ -4,9 +4,11 @@ import Assignment from "../expressions/assignment";
 import Binary from "../expressions/binary";
 import Call from "../expressions/call";
 import Expr from "../expressions/expr";
+import Get from "../expressions/get";
 import Grouping from "../expressions/grouping";
 import Literal from "../expressions/literal";
 import Logical from "../expressions/logical";
+import SetExpr from "../expressions/setter";
 import Unary from "../expressions/unary";
 import Var from "../expressions/var";
 import Block from "../statements/block";
@@ -33,8 +35,22 @@ class Resolver extends Visitor<void> {
         this.interpreter = interpreter;
     }
 
+    public visitSetExpr(expr: SetExpr): void {
+        this.resolveExpr(expr.value);
+        this.resolveExpr(expr.object);
+    }
+
+    public visitGetExpr(expr: Get): void {
+        this.resolveExpr(expr.object);
+    }
+
     public visitClassStmt(stmt: Class): void {
         this.declare(stmt.name);
+
+        stmt.methods.forEach((m) => {
+            this.resolveFunction(m, FunctionType.Method);
+        });
+
         this.define(stmt.name);
     }
 

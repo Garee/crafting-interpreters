@@ -1,7 +1,7 @@
 import Callable from "../callables/callable";
 import Class from "../callables/class";
 import Clock from "../callables/clock";
-import Function from "../callables/function";
+import LoxFunction from "../callables/function";
 import { TokenType } from "../enums";
 import Environment from "../environment";
 import ReturnError from "../errors/return-error";
@@ -10,11 +10,14 @@ import Assignment from "../expressions/assignment";
 import Binary from "../expressions/binary";
 import Call from "../expressions/call";
 import Expr from "../expressions/expr";
+import Get from "../expressions/get";
 import Grouping from "../expressions/grouping";
 import Literal from "../expressions/literal";
 import Logical from "../expressions/logical";
+import SetExpr from "../expressions/setter";
 import Unary from "../expressions/unary";
 import Var from "../expressions/var";
+import Instance from "../instance";
 import Block from "../statements/block";
 import ClassStmt from "../statements/class";
 import ExprStmt from "../statements/expr-stmt";
@@ -52,10 +55,36 @@ class Interpreter extends Visitor<LoxValue> {
         this.locals.set(expr, scopeDepth);
     }
 
+    public visitSetExpr(expr: SetExpr): LoxValue {
+        const object = this.evaluate(expr.object);
+        if (object instanceof Instance) {
+            const val = this.evaluate(expr.value);
+            object.set(expr.name, val);
+        }
+
+        throw new RuntimeError(expr.name, "Only instances have fields.");
+    }
+
+    public visitGetExpr(expr: Get): LoxValue {
+        const object = this.evaluate(expr.object);
+        if (object instanceof Instance) {
+            return object.get(expr.name);
+        }
+
+        throw new RuntimeError(expr.name, "Only instances have properties.");
+    }
+
     public visitClassStmt(stmt: ClassStmt): LoxValue {
         this.environment.define(stmt.name.lexeme, null);
-        const cls = new Class(stmt.name.lexeme);
+
+        const methods = stmt.methods.reduce((acc, m) => {
+            acc.set(m.name.lexeme, new LoxFunction(m, this.environment));
+            return acc;
+        }, new Map<string, LoxFunction>());
+
+        const cls = new Class(stmt.name.lexeme, methods);
         this.environment.assign(stmt.name, cls);
+
         return null;
     }
 
@@ -69,7 +98,7 @@ class Interpreter extends Visitor<LoxValue> {
     }
 
     public visitFunStmt(stmt: Fun): LoxValue {
-        const func = new Function(stmt, this.environment);
+        const func = new LoxFunction(stmt, this.environment);
         this.environment.define(stmt.name.lexeme, func);
         return null;
     }

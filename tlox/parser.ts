@@ -4,9 +4,11 @@ import Assignment from "./expressions/assignment";
 import Binary from "./expressions/binary";
 import Call from "./expressions/call";
 import Expr from "./expressions/expr";
+import Get from "./expressions/get";
 import Grouping from "./expressions/grouping";
 import Literal from "./expressions/literal";
 import Logical from "./expressions/logical";
+import SetExpr from "./expressions/setter";
 import Unary from "./expressions/unary";
 import Var from "./expressions/var";
 import Block from "./statements/block";
@@ -279,8 +281,13 @@ class Parser {
         if (this.match(TokenType.Equal)) {
             const equals = this.previous();
             const val = this.assignment();
+
             if (expr instanceof Var) {
                 return new Assignment(expr.name, val);
+            }
+
+            if (expr instanceof Get) {
+                return new SetExpr(expr.object, expr.name, val);
             }
 
             this.handleError(equals, "Invalid assignment target.");
@@ -381,10 +388,21 @@ class Parser {
 
     private call(): Expr {
         let expr = this.primary();
-        while (this.match(TokenType.LeftParen)) {
-            const result = this.doCall(expr);
-            if (result) {
-                expr = result;
+
+        const parsing = true;
+        while (parsing) {
+            if (this.match(TokenType.LeftParen)) {
+                const result = this.doCall(expr);
+                if (result) {
+                    expr = result;
+                }
+            } else if (this.match(TokenType.Dot)) {
+                const name = this.consume(TokenType.Identifier);
+                if (name) {
+                    expr = new Get(expr, name);
+                }
+            } else {
+                break;
             }
         }
 
