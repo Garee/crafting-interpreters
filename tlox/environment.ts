@@ -1,11 +1,12 @@
-import Callable from "./callable";
+import Callable from "./callables/callable";
+import Class from "./class";
 import RuntimeError from "./errors/runtime-error";
 import Token from "./token";
 
 class Environment {
     private values = new Map<
         string,
-        string | number | boolean | Callable | null
+        string | number | boolean | Callable | Class | null
     >();
     private enclosing?: Environment;
 
@@ -15,12 +16,14 @@ class Environment {
 
     public define(
         name: string,
-        val: string | number | boolean | Callable | null
+        val: string | number | boolean | Callable | Class | null
     ): void {
         this.values.set(name, val);
     }
 
-    public get(name: Token): string | number | boolean | Callable | null {
+    public get(
+        name: Token
+    ): string | number | boolean | Callable | Class | null {
         if (this.values.has(name.lexeme)) {
             return this.values.get(name.lexeme) ?? null;
         }
@@ -38,13 +41,13 @@ class Environment {
     public getAt(
         name: Token,
         depth: number
-    ): string | number | boolean | Callable | null {
+    ): string | number | boolean | Callable | Class | null {
         return this.ancestor(depth)?.values.get(name.lexeme) ?? null;
     }
 
     public assignAt(
         name: Token,
-        val: string | number | boolean | Callable | null,
+        val: string | number | boolean | Callable | Class | null,
         depth: number
     ): void {
         const ancestor = this.ancestor(depth);
@@ -66,7 +69,7 @@ class Environment {
 
     public assign(
         name: Token,
-        val: string | number | boolean | Callable | null
+        val: string | number | boolean | Callable | Class | null
     ): void {
         if (this.values.has(name.lexeme)) {
             this.values.set(name.lexeme, val);

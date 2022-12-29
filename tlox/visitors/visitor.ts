@@ -7,6 +7,7 @@ import Logical from "../expressions/logical";
 import Unary from "../expressions/unary";
 import Var from "../expressions/var";
 import Block from "../statements/block";
+import Class from "../statements/class";
 import ExprStmt from "../statements/expr-stmt";
 import Fun from "../statements/fun";
 import If from "../statements/if";
@@ -32,6 +33,7 @@ abstract class Visitor<T> {
     abstract visitWhileStmt(stmt: While): T;
     abstract visitFunStmt(stmt: Fun): T;
     abstract visitReturnStmt(stmt: Return): T;
+    abstract visitClassStmt(stmt: Class): T;
 }
 
 export default Visitor;

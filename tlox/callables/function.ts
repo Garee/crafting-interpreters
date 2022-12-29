@@ -1,8 +1,9 @@
-import Callable from "../callable";
+import Class from "../class";
 import Environment from "../environment";
 import ReturnError from "../errors/return-error";
 import Fun from "../statements/fun";
 import Interpreter from "../visitors/interpreter";
+import Callable from "./callable";
 
 class Function extends Callable {
     private readonly declaration: Fun;
@@ -16,8 +17,8 @@ class Function extends Callable {
 
     public call(
         interpreter: Interpreter,
-        args: (string | number | boolean | Callable | null)[]
-    ): string | number | boolean | Callable | null {
+        args: (string | number | boolean | Callable | Class | null)[]
+    ): string | number | boolean | Callable | Class | null {
         const environment = new Environment(this.closure);
         this.declaration.params.forEach((p, i) => {
             environment.define(p.lexeme, args[i]);

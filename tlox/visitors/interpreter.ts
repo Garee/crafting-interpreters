@@ -1,6 +1,7 @@
-import Callable from "../callable";
+import Callable from "../callables/callable";
 import Clock from "../callables/clock";
 import Function from "../callables/function";
+import Class from "../class";
 import { TokenType } from "../enums";
 import Environment from "../environment";
 import ReturnError from "../errors/return-error";
@@ -15,6 +16,7 @@ import Logical from "../expressions/logical";
 import Unary from "../expressions/unary";
 import Var from "../expressions/var";
 import Block from "../statements/block";
+import ClassStmt from "../statements/class";
 import ExprStmt from "../statements/expr-stmt";
 import Fun from "../statements/fun";
 import If from "../statements/if";
@@ -27,7 +29,9 @@ import Token from "../token";
 import { isNumber, isString } from "../util";
 import Visitor from "./visitor";
 
-class Interpreter extends Visitor<string | number | boolean | Callable | null> {
+class Interpreter extends Visitor<
+    string | number | boolean | Callable | Class | null
+> {
     private readonly globals = new Environment();
     private readonly locals = new Map<Expr, number>();
     private environment = this.globals;
@@ -49,10 +53,19 @@ class Interpreter extends Visitor<string | number | boolean | Callable | null> {
         this.locals.set(expr, scopeDepth);
     }
 
+    public visitClassStmt(
+        stmt: ClassStmt
+    ): string | number | boolean | Callable | Class | null {
+        this.environment.define(stmt.name.lexeme, null);
+        const cls = new Class(stmt.name.lexeme);
+        this.environment.assign(stmt.name, cls);
+        return null;
+    }
+
     public visitReturnStmt(
         stmt: Return
-    ): string | number | boolean | Callable | null {
-        let val: string | number | boolean | Callable | null = null;
+    ): string | number | boolean | Callable | Class | null {
+        let val: string | number | boolean | Callable | Class | null = null;
         if (stmt.value) {
             val = this.evaluate(stmt.value);
         }
@@ -62,7 +75,7 @@ class Interpreter extends Visitor<string | number | boolean | Callable | null> {
 
     public visitFunStmt(
         stmt: Fun
-    ): string | number | boolean | Callable | null {
+    ): string | number | boolean | Callable | Class | null {
         const func = new Function(stmt, this.environment);
         this.environment.define(stmt.name.lexeme, func);
         return null;
@@ -70,7 +83,7 @@ class Interpreter extends Visitor<string | number | boolean | Callable | null> {
 
     public visitCallExpr(
         expr: Call
-    ): string | number | boolean | Callable | null {
+    ): string | number | boolean | Callable | Class | null {
         const callee = this.evaluate(expr.callee);
         if (!(callee instanceof Callable)) {
             throw new RuntimeError(
@@ -100,7 +113,7 @@ class Interpreter extends Visitor<string | number | boolean | Callable | null> {
 
     public visitLogicalExpr(
         expr: Logical
-    ): string | number | boolean | Callable | null {
+    ): string | number | boolean | Callable | Class | null {
         const result = this.evaluate(expr.left);
         if (expr.operator.type === TokenType.Or) {
             if (this.isTruthy(result)) {
@@ -141,7 +154,7 @@ class Interpreter extends Visitor<string | number | boolean | Callable | null> {
 
     public visitAssignmentExpr(
         expr: Assignment
-    ): string | number | boolean | Callable | null {
+    ): string | number | boolean | Callable | Class | null {
         const val = this.evaluate(expr.val);
 
         if (this.locals.has(expr)) {
@@ -157,7 +170,7 @@ class Interpreter extends Visitor<string | number | boolean | Callable | null> {
     }
 
     public visitVarStmt(stmt: VarStmt): string | number | boolean | null {
-        let val: string | number | boolean | Callable | null = null;
+        let val: string | number | boolean | Callable | Class | null = null;
         if (stmt.initialiser) {
             val = this.evaluate(stmt.initialiser);
         }
@@ -168,14 +181,14 @@ class Interpreter extends Visitor<string | number | boolean | Callable | null> {
 
     public visitVarExpr(
         expr: Var
-    ): string | number | boolean | Callable | null {
+    ): string | number | boolean | Callable | Class | null {
         return this.lookupVar(expr.name, expr);
     }
 
     private lookupVar(
         name: Token,
         expr: Expr
-    ): string | number | boolean | Callable | null {
+    ): string | number | boolean | Callable | Class | null {
         if (!this.locals.has(expr)) {
             return this.globals.get(name);
         }
@@ -286,7 +299,7 @@ class Interpreter extends Visitor<string | number | boolean | Callable | null> {
 
     public visitGroupingExpr(
         expr: Grouping
-    ): string | number | boolean | Callable | null {
+    ): string | number | boolean | Callable | Class | null {
         return this.evaluate(expr.expr);
     }
 
@@ -315,12 +328,14 @@ class Interpreter extends Visitor<string | number | boolean | Callable | null> {
         return null;
     }
 
-    private evaluate(expr: Expr): string | number | boolean | Callable | null {
+    private evaluate(
+        expr: Expr
+    ): string | number | boolean | Callable | Class | null {
         return expr.accept(this);
     }
 
     private isTruthy(
-        val: string | number | boolean | Callable | null
+        val: string | number | boolean | Callable | Class | null
     ): boolean {
         if (val === null) {
             return false;
@@ -333,12 +348,14 @@ class Interpreter extends Visitor<string | number | boolean | Callable | null> {
         return true;
     }
 
-    public stringify(val: string | number | boolean | Callable | null): string {
+    public stringify(
+        val: string | number | boolean | Callable | Class | null
+    ): string {
         if (val === null) {
             return "nil";
         }
 
-        if (val instanceof Callable) {
+        if (val instanceof Callable || val instanceof Class) {
             return val.toString();
         }
 

@@ -1,4 +1,4 @@
-import { TokenType } from "./enums";
+import { FunctionType, TokenType } from "./enums";
 import ParseError from "./errors/parse-error";
 import Assignment from "./expressions/assignment";
 import Binary from "./expressions/binary";
@@ -10,6 +10,7 @@ import Logical from "./expressions/logical";
 import Unary from "./expressions/unary";
 import Var from "./expressions/var";
 import Block from "./statements/block";
+import Class from "./statements/class";
 import ExprStmt from "./statements/expr-stmt";
 import Fun from "./statements/fun";
 import If from "./statements/if";
@@ -106,8 +107,32 @@ class Parser {
                 return stmt;
             }
         }
+        if (this.match(TokenType.Class)) {
+            const cls = this.classDeclaration();
+            if (cls) {
+                return cls;
+            }
+        }
 
         return this.exprStatement();
+    }
+
+    private classDeclaration(): Class | undefined {
+        const name = this.consume(TokenType.Identifier);
+        this.consume(TokenType.LeftBrace);
+
+        const methods: Fun[] = [];
+        while (!this.check(TokenType.RightBrace) && !this.isAtEnd()) {
+            const fun = this.function(FunctionType.Method);
+            if (fun) {
+                methods.push(fun);
+            }
+        }
+
+        this.consume(TokenType.RightBrace);
+        if (name) {
+            return new Class(name, methods);
+        }
     }
 
     private returnStatement(): Return | undefined {
@@ -122,7 +147,7 @@ class Parser {
         }
     }
 
-    private function(): Fun | undefined {
+    private function(_type = FunctionType.Function): Fun | undefined {
         const name = this.consume(TokenType.Identifier);
         this.consume(TokenType.LeftParen);
 

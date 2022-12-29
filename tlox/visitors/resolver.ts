@@ -10,6 +10,7 @@ import Logical from "../expressions/logical";
 import Unary from "../expressions/unary";
 import Var from "../expressions/var";
 import Block from "../statements/block";
+import Class from "../statements/class";
 import ExprStmt from "../statements/expr-stmt";
 import Fun from "../statements/fun";
 import If from "../statements/if";
@@ -30,6 +31,11 @@ class Resolver extends Visitor<void> {
     constructor(interpreter: Interpreter) {
         super();
         this.interpreter = interpreter;
+    }
+
+    public visitClassStmt(stmt: Class): void {
+        this.declare(stmt.name);
+        this.define(stmt.name);
     }
 
     public visitBinaryExpr(expr: Binary): void {
