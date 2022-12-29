@@ -7,6 +7,7 @@ import Grouping from "./expressions/grouping";
 import Literal from "./expressions/literal";
 import Unary from "./expressions/unary";
 import Var from "./expressions/var";
+import Block from "./statements/block";
 import ExprStmt from "./statements/expr-stmt";
 import Print from "./statements/print";
 import Stmt from "./statements/stmt";
@@ -68,7 +69,25 @@ class Parser {
             return this.printStatement();
         }
 
+        if (this.match(TokenType.LeftBrace)) {
+            return this.blockStatement();
+        }
+
         return this.exprStatement();
+    }
+
+    private blockStatement(): Stmt {
+        const statements: Stmt[] = [];
+
+        while (!this.check(TokenType.RightBrace) && !this.isAtEnd()) {
+            const dcl = this.declaration();
+            if (dcl) {
+                statements.push(dcl);
+            }
+        }
+
+        this.consume(TokenType.RightBrace);
+        return new Block(statements);
     }
 
     private printStatement(): Stmt {

@@ -4,6 +4,7 @@ import Grouping from "../expressions/grouping";
 import Literal from "../expressions/literal";
 import Unary from "../expressions/unary";
 import Var from "../expressions/var";
+import Block from "../statements/block";
 import ExprStmt from "../statements/expr-stmt";
 import Print from "../statements/print";
 import VarStmt from "../statements/var-stmt";
@@ -18,6 +19,7 @@ abstract class Visitor<T> {
     abstract visitPrintStmt(stmt: Print): T;
     abstract visitExprStmt(stmt: ExprStmt): T;
     abstract visitVarStmt(stmt: VarStmt): T;
+    abstract visitBlockStmt(stmt: Block): T;
 }
 
 export default Visitor;

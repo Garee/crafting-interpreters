@@ -8,6 +8,7 @@ import Grouping from "../expressions/grouping";
 import Literal from "../expressions/literal";
 import Unary from "../expressions/unary";
 import Var from "../expressions/var";
+import Block from "../statements/block";
 import ExprStmt from "../statements/expr-stmt";
 import Print from "../statements/print";
 import Stmt from "../statements/stmt";
@@ -24,6 +25,19 @@ class Interpreter extends Visitor<string | number | boolean | null> {
 
     public execute(stmt: Stmt): void {
         stmt.accept(this);
+    }
+
+    public visitBlockStmt(stmt: Block): string | number | boolean | null {
+        const rootEnvironment = this.environment;
+        this.environment = new Environment(this.environment);
+
+        try {
+            stmt.statements.forEach((s) => this.execute(s));
+        } finally {
+            this.environment = rootEnvironment;
+        }
+
+        return null;
     }
 
     public visitAssignmentExpr(
