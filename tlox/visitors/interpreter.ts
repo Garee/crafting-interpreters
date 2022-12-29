@@ -1,23 +1,42 @@
 import { TokenType } from "../enums";
-import RuntimeError from "../errors/runetime-error";
+import Environment from "../environment";
+import RuntimeError from "../errors/runtime-error";
 import Binary from "../expressions/binary";
 import Expr from "../expressions/expr";
 import Grouping from "../expressions/grouping";
 import Literal from "../expressions/literal";
 import Unary from "../expressions/unary";
+import Var from "../expressions/var";
 import ExprStmt from "../statements/expr-stmt";
 import Print from "../statements/print";
 import Stmt from "../statements/stmt";
+import VarStmt from "../statements/var-stmt";
 import { isNumber, isString } from "../util";
 import Visitor from "./visitor";
 
 class Interpreter extends Visitor<string | number | boolean | null> {
+    private environment = new Environment();
+
     public interpret(statements: Stmt[]): void {
         statements.forEach((stmt) => this.execute(stmt));
     }
 
     public execute(stmt: Stmt): void {
         stmt.accept(this);
+    }
+
+    public visitVarStmt(stmt: VarStmt): string | number | boolean | null {
+        let val: string | number | boolean | null = null;
+        if (stmt.initialiser) {
+            val = this.evaluate(stmt.initialiser);
+        }
+
+        this.environment.define(stmt.name, val);
+        return null;
+    }
+
+    public visitVarExpr(expr: Var): string | number | boolean | null {
+        return this.environment.get(expr.name);
     }
 
     public visitExprStmt(stmt: ExprStmt): string | number | boolean | null {

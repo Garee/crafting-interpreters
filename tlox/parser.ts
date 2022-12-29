@@ -5,9 +5,11 @@ import Expr from "./expressions/expr";
 import Grouping from "./expressions/grouping";
 import Literal from "./expressions/literal";
 import Unary from "./expressions/unary";
+import Var from "./expressions/var";
 import ExprStmt from "./statements/expr-stmt";
 import Print from "./statements/print";
 import Stmt from "./statements/stmt";
+import VarStmt from "./statements/var-stmt";
 import Token from "./token";
 
 class Parser {
@@ -21,9 +23,43 @@ class Parser {
     public parse(): Stmt[] {
         const statements: Stmt[] = [];
         while (!this.isAtEnd()) {
-            statements.push(this.statement());
+            const dcl = this.declaration();
+            if (dcl) {
+                statements.push(dcl);
+            }
         }
         return statements;
+    }
+
+    private declaration(): Stmt | undefined {
+        try {
+            if (this.match(TokenType.Var)) {
+                return this.variable();
+            }
+
+            return this.statement();
+        } catch (err) {
+            if (err instanceof ParseError) {
+                console.error(err.message);
+                this.synchronise();
+            }
+
+            return undefined;
+        }
+    }
+
+    private variable(): Stmt | undefined {
+        const name = this.consume(TokenType.Identifier);
+
+        let initialiser: Expr | undefined = undefined;
+        if (this.match(TokenType.Equal)) {
+            initialiser = this.expr();
+        }
+
+        this.consume(TokenType.SemiColon);
+        if (name) {
+            return new VarStmt(name, initialiser);
+        }
     }
 
     private statement(): Stmt {
@@ -142,14 +178,17 @@ class Parser {
             return new Grouping(expr);
         }
 
+        if (this.match(TokenType.Identifier)) {
+            return new Var(this.previous());
+        }
+
         this.handleError(this.peek(), "Expected an expression.");
         return new Literal("");
     }
 
-    private consume(type: TokenType): void {
+    private consume(type: TokenType): Token | undefined {
         if (this.check(type)) {
-            this.advance();
-            return;
+            return this.advance();
         }
 
         this.handleError(this.peek(), `Expected ${type}`);
@@ -165,7 +204,7 @@ class Parser {
         throw new ParseError(token, message);
     }
 
-    private previous(): Token | undefined {
+    private previous(): Token {
         return this.tokens[this.current - 1];
     }
 
@@ -177,7 +216,7 @@ class Parser {
         return this.peek()?.type === TokenType.Eof;
     }
 
-    private advance(): Token | undefined {
+    private advance(): Token {
         if (!this.isAtEnd()) {
             this.current++;
         }

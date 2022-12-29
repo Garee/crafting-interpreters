@@ -1,7 +1,7 @@
 import { readFile } from "fs/promises";
 import { createInterface } from "readline/promises";
 import ParseError from "./errors/parse-error";
-import RuntimeError from "./errors/runetime-error";
+import RuntimeError from "./errors/runtime-error";
 import ScanError from "./errors/scan-error";
 import Parser from "./parser";
 import Scanner from "./scanner";

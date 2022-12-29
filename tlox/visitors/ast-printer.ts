@@ -3,13 +3,25 @@ import Expr from "../expressions/expr";
 import Grouping from "../expressions/grouping";
 import Literal from "../expressions/literal";
 import Unary from "../expressions/unary";
+import Var from "../expressions/var";
 import ExprStmt from "../statements/expr-stmt";
 import Print from "../statements/print";
+import VarStmt from "../statements/var-stmt";
 import Visitor from "./visitor";
 
 class AstPrinter extends Visitor<string> {
     public print(expr: Expr): string {
         return expr.accept<string>(this);
+    }
+
+    public visitVarStmt(_stmt: VarStmt): string {
+        // TODO:
+        return "";
+    }
+
+    public visitVarExpr(_expr: Var): string {
+        // TODO:
+        return "";
     }
 
     public visitExprStmt(stmt: ExprStmt): string {
