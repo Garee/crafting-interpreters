@@ -1,10 +1,18 @@
+import Instance from "../instance";
 import { LoxValue } from "../types";
 import Interpreter from "../visitors/interpreter";
 import Callable from "./callable";
 
-class Clock extends Callable {
+class Class extends Callable {
+    private name: string;
+
+    constructor(name: string) {
+        super();
+        this.name = name;
+    }
+
     public call(_interpreter: Interpreter, _args: LoxValue[]): LoxValue {
-        return new Date().getTime() / 1000;
+        return new Instance(this);
     }
 
     public arity(): number {
@@ -12,8 +20,8 @@ class Clock extends Callable {
     }
 
     public toString(): string {
-        return "<native fn>";
+        return this.name;
     }
 }
 
-export default Clock;
+export default Class;

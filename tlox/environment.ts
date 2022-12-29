@@ -1,29 +1,20 @@
-import Callable from "./callables/callable";
-import Class from "./class";
 import RuntimeError from "./errors/runtime-error";
 import Token from "./token";
+import { LoxValue } from "./types";
 
 class Environment {
-    private values = new Map<
-        string,
-        string | number | boolean | Callable | Class | null
-    >();
+    private values = new Map<string, LoxValue>();
     private enclosing?: Environment;
 
     constructor(enclosing?: Environment) {
         this.enclosing = enclosing;
     }
 
-    public define(
-        name: string,
-        val: string | number | boolean | Callable | Class | null
-    ): void {
+    public define(name: string, val: LoxValue): void {
         this.values.set(name, val);
     }
 
-    public get(
-        name: Token
-    ): string | number | boolean | Callable | Class | null {
+    public get(name: Token): LoxValue {
         if (this.values.has(name.lexeme)) {
             return this.values.get(name.lexeme) ?? null;
         }
@@ -38,18 +29,11 @@ class Environment {
         );
     }
 
-    public getAt(
-        name: Token,
-        depth: number
-    ): string | number | boolean | Callable | Class | null {
+    public getAt(name: Token, depth: number): LoxValue {
         return this.ancestor(depth)?.values.get(name.lexeme) ?? null;
     }
 
-    public assignAt(
-        name: Token,
-        val: string | number | boolean | Callable | Class | null,
-        depth: number
-    ): void {
+    public assignAt(name: Token, val: LoxValue, depth: number): void {
         const ancestor = this.ancestor(depth);
         ancestor?.values.set(name.lexeme, val);
     }
@@ -67,10 +51,7 @@ class Environment {
         return env;
     }
 
-    public assign(
-        name: Token,
-        val: string | number | boolean | Callable | Class | null
-    ): void {
+    public assign(name: Token, val: LoxValue): void {
         if (this.values.has(name.lexeme)) {
             this.values.set(name.lexeme, val);
             return;

@@ -1,7 +1,7 @@
 import Callable from "../callables/callable";
+import Class from "../callables/class";
 import Clock from "../callables/clock";
 import Function from "../callables/function";
-import Class from "../class";
 import { TokenType } from "../enums";
 import Environment from "../environment";
 import ReturnError from "../errors/return-error";
@@ -26,12 +26,11 @@ import Stmt from "../statements/stmt";
 import VarStmt from "../statements/var-stmt";
 import While from "../statements/while";
 import Token from "../token";
+import { LoxValue } from "../types";
 import { isNumber, isString } from "../util";
 import Visitor from "./visitor";
 
-class Interpreter extends Visitor<
-    string | number | boolean | Callable | Class | null
-> {
+class Interpreter extends Visitor<LoxValue> {
     private readonly globals = new Environment();
     private readonly locals = new Map<Expr, number>();
     private environment = this.globals;
@@ -53,19 +52,15 @@ class Interpreter extends Visitor<
         this.locals.set(expr, scopeDepth);
     }
 
-    public visitClassStmt(
-        stmt: ClassStmt
-    ): string | number | boolean | Callable | Class | null {
+    public visitClassStmt(stmt: ClassStmt): LoxValue {
         this.environment.define(stmt.name.lexeme, null);
         const cls = new Class(stmt.name.lexeme);
         this.environment.assign(stmt.name, cls);
         return null;
     }
 
-    public visitReturnStmt(
-        stmt: Return
-    ): string | number | boolean | Callable | Class | null {
-        let val: string | number | boolean | Callable | Class | null = null;
+    public visitReturnStmt(stmt: Return): LoxValue {
+        let val: LoxValue = null;
         if (stmt.value) {
             val = this.evaluate(stmt.value);
         }
@@ -73,17 +68,13 @@ class Interpreter extends Visitor<
         throw new ReturnError(val);
     }
 
-    public visitFunStmt(
-        stmt: Fun
-    ): string | number | boolean | Callable | Class | null {
+    public visitFunStmt(stmt: Fun): LoxValue {
         const func = new Function(stmt, this.environment);
         this.environment.define(stmt.name.lexeme, func);
         return null;
     }
 
-    public visitCallExpr(
-        expr: Call
-    ): string | number | boolean | Callable | Class | null {
+    public visitCallExpr(expr: Call): LoxValue {
         const callee = this.evaluate(expr.callee);
         if (!(callee instanceof Callable)) {
             throw new RuntimeError(
@@ -103,7 +94,7 @@ class Interpreter extends Visitor<
         return callee.call(this, args);
     }
 
-    public visitWhileStmt(stmt: While): string | number | boolean | null {
+    public visitWhileStmt(stmt: While): LoxValue {
         while (this.isTruthy(this.evaluate(stmt.condition))) {
             this.execute(stmt.body);
         }
@@ -111,9 +102,7 @@ class Interpreter extends Visitor<
         return null;
     }
 
-    public visitLogicalExpr(
-        expr: Logical
-    ): string | number | boolean | Callable | Class | null {
+    public visitLogicalExpr(expr: Logical): LoxValue {
         const result = this.evaluate(expr.left);
         if (expr.operator.type === TokenType.Or) {
             if (this.isTruthy(result)) {
@@ -126,7 +115,7 @@ class Interpreter extends Visitor<
         return this.evaluate(expr.right);
     }
 
-    public visitIfStmt(stmt: If): string | number | boolean | null {
+    public visitIfStmt(stmt: If): LoxValue {
         if (this.isTruthy(this.evaluate(stmt.condition))) {
             this.execute(stmt.then);
         } else if (stmt.else) {
@@ -136,7 +125,7 @@ class Interpreter extends Visitor<
         return null;
     }
 
-    public visitBlockStmt(stmt: Block): string | number | boolean | null {
+    public visitBlockStmt(stmt: Block): LoxValue {
         this.executeBlock(stmt, new Environment(this.environment));
         return null;
     }
@@ -152,9 +141,7 @@ class Interpreter extends Visitor<
         }
     }
 
-    public visitAssignmentExpr(
-        expr: Assignment
-    ): string | number | boolean | Callable | Class | null {
+    public visitAssignmentExpr(expr: Assignment): LoxValue {
         const val = this.evaluate(expr.val);
 
         if (this.locals.has(expr)) {
@@ -169,8 +156,8 @@ class Interpreter extends Visitor<
         return val;
     }
 
-    public visitVarStmt(stmt: VarStmt): string | number | boolean | null {
-        let val: string | number | boolean | Callable | Class | null = null;
+    public visitVarStmt(stmt: VarStmt): LoxValue {
+        let val: LoxValue = null;
         if (stmt.initialiser) {
             val = this.evaluate(stmt.initialiser);
         }
@@ -179,16 +166,11 @@ class Interpreter extends Visitor<
         return null;
     }
 
-    public visitVarExpr(
-        expr: Var
-    ): string | number | boolean | Callable | Class | null {
+    public visitVarExpr(expr: Var): LoxValue {
         return this.lookupVar(expr.name, expr);
     }
 
-    private lookupVar(
-        name: Token,
-        expr: Expr
-    ): string | number | boolean | Callable | Class | null {
+    private lookupVar(name: Token, expr: Expr): LoxValue {
         if (!this.locals.has(expr)) {
             return this.globals.get(name);
         }
@@ -201,18 +183,18 @@ class Interpreter extends Visitor<
         return null;
     }
 
-    public visitExprStmt(stmt: ExprStmt): string | number | boolean | null {
+    public visitExprStmt(stmt: ExprStmt): LoxValue {
         this.evaluate(stmt.expr);
         return null;
     }
 
-    public visitPrintStmt(stmt: Print): string | number | boolean | null {
+    public visitPrintStmt(stmt: Print): LoxValue {
         const result = this.evaluate(stmt.expr);
         console.log(this.stringify(result));
         return null;
     }
 
-    public visitBinaryExpr(expr: Binary): string | number | boolean | null {
+    public visitBinaryExpr(expr: Binary): LoxValue {
         const left = this.evaluate(expr.left);
         const right = this.evaluate(expr.right);
 
@@ -297,17 +279,15 @@ class Interpreter extends Visitor<
         return null;
     }
 
-    public visitGroupingExpr(
-        expr: Grouping
-    ): string | number | boolean | Callable | Class | null {
+    public visitGroupingExpr(expr: Grouping): LoxValue {
         return this.evaluate(expr.expr);
     }
 
-    public visitLiteralExpr(expr: Literal): string | number | boolean | null {
+    public visitLiteralExpr(expr: Literal): LoxValue {
         return expr.value;
     }
 
-    public visitUnaryExpr(expr: Unary): string | number | boolean | null {
+    public visitUnaryExpr(expr: Unary): LoxValue {
         const right = this.evaluate(expr.right);
 
         switch (expr.operator.type) {
@@ -328,15 +308,11 @@ class Interpreter extends Visitor<
         return null;
     }
 
-    private evaluate(
-        expr: Expr
-    ): string | number | boolean | Callable | Class | null {
+    private evaluate(expr: Expr): LoxValue {
         return expr.accept(this);
     }
 
-    private isTruthy(
-        val: string | number | boolean | Callable | Class | null
-    ): boolean {
+    private isTruthy(val: LoxValue): boolean {
         if (val === null) {
             return false;
         }
@@ -348,9 +324,7 @@ class Interpreter extends Visitor<
         return true;
     }
 
-    public stringify(
-        val: string | number | boolean | Callable | Class | null
-    ): string {
+    public stringify(val: LoxValue): string {
         if (val === null) {
             return "nil";
         }

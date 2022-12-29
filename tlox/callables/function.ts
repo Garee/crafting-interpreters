@@ -1,7 +1,7 @@
-import Class from "../class";
 import Environment from "../environment";
 import ReturnError from "../errors/return-error";
 import Fun from "../statements/fun";
+import { LoxValue } from "../types";
 import Interpreter from "../visitors/interpreter";
 import Callable from "./callable";
 
@@ -15,10 +15,7 @@ class Function extends Callable {
         this.closure = closure;
     }
 
-    public call(
-        interpreter: Interpreter,
-        args: (string | number | boolean | Callable | Class | null)[]
-    ): string | number | boolean | Callable | Class | null {
+    public call(interpreter: Interpreter, args: LoxValue[]): LoxValue {
         const environment = new Environment(this.closure);
         this.declaration.params.forEach((p, i) => {
             environment.define(p.lexeme, args[i]);
