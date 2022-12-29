@@ -5,18 +5,20 @@ import Fun from "../statements/fun";
 import Interpreter from "../visitors/interpreter";
 
 class Function extends Callable {
-    public declaration: Fun;
+    private readonly declaration: Fun;
+    private readonly closure: Environment;
 
-    constructor(declaration: Fun) {
+    constructor(declaration: Fun, closure: Environment) {
         super();
         this.declaration = declaration;
+        this.closure = closure;
     }
 
     public call(
         interpreter: Interpreter,
         args: (string | number | boolean | Callable | null)[]
     ): string | number | boolean | Callable | null {
-        const environment = new Environment(interpreter.globals);
+        const environment = new Environment(this.closure);
         this.declaration.params.forEach((p, i) => {
             environment.define(p.lexeme, args[i]);
         });

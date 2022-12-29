@@ -57,7 +57,7 @@ class Interpreter extends Visitor<string | number | boolean | Callable | null> {
     public visitFunStmt(
         stmt: Fun
     ): string | number | boolean | Callable | null {
-        const func = new Function(stmt);
+        const func = new Function(stmt, this.environment);
         this.environment.define(stmt.name.lexeme, func);
         return null;
     }
