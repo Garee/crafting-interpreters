@@ -9,6 +9,7 @@ import Unary from "./expressions/unary";
 import Var from "./expressions/var";
 import Block from "./statements/block";
 import ExprStmt from "./statements/expr-stmt";
+import If from "./statements/if";
 import Print from "./statements/print";
 import Stmt from "./statements/stmt";
 import VarStmt from "./statements/var-stmt";
@@ -73,7 +74,25 @@ class Parser {
             return this.blockStatement();
         }
 
+        if (this.match(TokenType.If)) {
+            return this.ifStatement();
+        }
+
         return this.exprStatement();
+    }
+
+    private ifStatement(): Stmt {
+        this.consume(TokenType.LeftParen);
+        const condition = this.expr();
+        this.consume(TokenType.RightParen);
+
+        const then = this.statement();
+        let els: Stmt | undefined = undefined;
+        if (this.match(TokenType.Else)) {
+            els = this.statement();
+        }
+
+        return new If(condition, then, els);
     }
 
     private blockStatement(): Stmt {

@@ -32,3 +32,23 @@ one
 true
 3
 ```
+
+## Development
+
+Lint:
+
+```shell
+npm run lint
+```
+
+Hot compile:
+
+```shell
+npm run dev
+```
+
+Typecheck:
+
+```shell
+npm run tsc:watch
+```

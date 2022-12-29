@@ -6,6 +6,7 @@ import Unary from "../expressions/unary";
 import Var from "../expressions/var";
 import Block from "../statements/block";
 import ExprStmt from "../statements/expr-stmt";
+import If from "../statements/if";
 import Print from "../statements/print";
 import VarStmt from "../statements/var-stmt";
 
@@ -20,6 +21,7 @@ abstract class Visitor<T> {
     abstract visitExprStmt(stmt: ExprStmt): T;
     abstract visitVarStmt(stmt: VarStmt): T;
     abstract visitBlockStmt(stmt: Block): T;
+    abstract visitIfStmt(stmt: If): T;
 }
 
 export default Visitor;

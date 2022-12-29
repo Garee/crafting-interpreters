@@ -10,6 +10,7 @@ import Unary from "../expressions/unary";
 import Var from "../expressions/var";
 import Block from "../statements/block";
 import ExprStmt from "../statements/expr-stmt";
+import If from "../statements/if";
 import Print from "../statements/print";
 import Stmt from "../statements/stmt";
 import VarStmt from "../statements/var-stmt";
@@ -25,6 +26,16 @@ class Interpreter extends Visitor<string | number | boolean | null> {
 
     public execute(stmt: Stmt): void {
         stmt.accept(this);
+    }
+
+    public visitIfStmt(stmt: If): string | number | boolean | null {
+        if (this.isTruthy(this.evaluate(stmt.condition))) {
+            this.execute(stmt.then);
+        } else if (stmt.else) {
+            this.execute(stmt.else);
+        }
+
+        return null;
     }
 
     public visitBlockStmt(stmt: Block): string | number | boolean | null {
