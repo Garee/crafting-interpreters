@@ -39,3 +39,8 @@ export enum TokenType {
     While = "while",
     Eof = "\0",
 }
+
+export enum FunctionType {
+    None,
+    Function,
+}

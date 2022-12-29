@@ -23,11 +23,13 @@ import Return from "../statements/return";
 import Stmt from "../statements/stmt";
 import VarStmt from "../statements/var-stmt";
 import While from "../statements/while";
+import Token from "../token";
 import { isNumber, isString } from "../util";
 import Visitor from "./visitor";
 
 class Interpreter extends Visitor<string | number | boolean | Callable | null> {
-    public readonly globals = new Environment();
+    private readonly globals = new Environment();
+    private readonly locals = new Map<Expr, number>();
     private environment = this.globals;
 
     constructor() {
@@ -41,6 +43,10 @@ class Interpreter extends Visitor<string | number | boolean | Callable | null> {
 
     public execute(stmt: Stmt): void {
         stmt.accept(this);
+    }
+
+    public resolve(expr: Expr, scopeDepth: number): void {
+        this.locals.set(expr, scopeDepth);
     }
 
     public visitReturnStmt(
@@ -137,7 +143,16 @@ class Interpreter extends Visitor<string | number | boolean | Callable | null> {
         expr: Assignment
     ): string | number | boolean | Callable | null {
         const val = this.evaluate(expr.val);
-        this.environment.assign(expr.name, val);
+
+        if (this.locals.has(expr)) {
+            const depth = this.locals.get(expr);
+            if (depth !== undefined) {
+                this.environment.assignAt(expr.name, val, depth);
+            }
+        } else {
+            this.globals.assign(expr.name, val);
+        }
+
         return val;
     }
 
@@ -154,7 +169,23 @@ class Interpreter extends Visitor<string | number | boolean | Callable | null> {
     public visitVarExpr(
         expr: Var
     ): string | number | boolean | Callable | null {
-        return this.environment.get(expr.name);
+        return this.lookupVar(expr.name, expr);
+    }
+
+    private lookupVar(
+        name: Token,
+        expr: Expr
+    ): string | number | boolean | Callable | null {
+        if (!this.locals.has(expr)) {
+            return this.globals.get(name);
+        }
+
+        const depth = this.locals.get(expr);
+        if (depth !== undefined) {
+            return this.environment.getAt(name, depth);
+        }
+
+        return null;
     }
 
     public visitExprStmt(stmt: ExprStmt): string | number | boolean | null {

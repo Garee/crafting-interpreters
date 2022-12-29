@@ -1,11 +1,13 @@
 import { readFile } from "fs/promises";
 import { createInterface } from "readline/promises";
 import ParseError from "./errors/parse-error";
+import ResolveError from "./errors/resolve-error";
 import RuntimeError from "./errors/runtime-error";
 import ScanError from "./errors/scan-error";
 import Parser from "./parser";
 import Scanner from "./scanner";
 import Interpreter from "./visitors/interpreter";
+import Resolver from "./visitors/resolver";
 
 class TLox {
     public hasError = false;
@@ -32,8 +34,13 @@ class TLox {
         try {
             const scanner = new Scanner(code);
             const tokens = scanner.scanTokens();
+
             const parser = new Parser(tokens);
             const statements = parser.parse();
+
+            const resolver = new Resolver(this.interpreter);
+            resolver.resolveAllStmt(statements);
+
             this.interpreter.interpret(statements);
         } catch (err) {
             if (err instanceof ScanError) {
@@ -41,6 +48,10 @@ class TLox {
             }
 
             if (err instanceof ParseError) {
+                this.handleError(err.token.line, err.message);
+            }
+
+            if (err instanceof ResolveError) {
                 this.handleError(err.token.line, err.message);
             }
 
