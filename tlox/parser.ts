@@ -14,6 +14,7 @@ import If from "./statements/if";
 import Print from "./statements/print";
 import Stmt from "./statements/stmt";
 import VarStmt from "./statements/var-stmt";
+import While from "./statements/while";
 import Token from "./token";
 
 class Parser {
@@ -79,7 +80,67 @@ class Parser {
             return this.ifStatement();
         }
 
+        if (this.match(TokenType.While)) {
+            return this.whileStatement();
+        }
+
+        if (this.match(TokenType.For)) {
+            return this.forStatement();
+        }
+
         return this.exprStatement();
+    }
+
+    private forStatement(): Stmt {
+        this.consume(TokenType.LeftParen);
+
+        let initialiser: Stmt | undefined;
+        if (this.match(TokenType.SemiColon)) {
+            initialiser = undefined;
+        } else if (this.match(TokenType.Var)) {
+            initialiser = this.variable();
+        } else {
+            initialiser = this.expr();
+        }
+
+        let condition: Stmt | undefined;
+        if (!this.check(TokenType.SemiColon)) {
+            condition = this.expr();
+        }
+
+        this.consume(TokenType.SemiColon);
+
+        let increment: Stmt | undefined;
+        if (!this.check(TokenType.RightParen)) {
+            increment = this.expr();
+        }
+
+        this.consume(TokenType.RightParen);
+
+        let body = this.statement();
+        if (increment) {
+            body = new Block([body, increment]);
+        }
+
+        if (!condition) {
+            condition = new Literal(true);
+        }
+
+        body = new While(condition, body);
+
+        if (initialiser) {
+            body = new Block([initialiser, body]);
+        }
+
+        return body;
+    }
+
+    private whileStatement(): Stmt {
+        this.consume(TokenType.LeftParen);
+        const condition = this.expr();
+        this.consume(TokenType.RightParen);
+        const body = this.statement();
+        return new While(condition, body);
     }
 
     private ifStatement(): Stmt {

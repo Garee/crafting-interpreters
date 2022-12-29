@@ -10,6 +10,7 @@ import ExprStmt from "../statements/expr-stmt";
 import If from "../statements/if";
 import Print from "../statements/print";
 import VarStmt from "../statements/var-stmt";
+import While from "../statements/while";
 
 abstract class Visitor<T> {
     abstract visitBinaryExpr(expr: Binary): T;
@@ -24,6 +25,7 @@ abstract class Visitor<T> {
     abstract visitVarStmt(stmt: VarStmt): T;
     abstract visitBlockStmt(stmt: Block): T;
     abstract visitIfStmt(stmt: If): T;
+    abstract visitWhileStmt(stmt: While): T;
 }
 
 export default Visitor;

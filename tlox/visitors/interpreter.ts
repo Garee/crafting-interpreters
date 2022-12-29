@@ -15,6 +15,7 @@ import If from "../statements/if";
 import Print from "../statements/print";
 import Stmt from "../statements/stmt";
 import VarStmt from "../statements/var-stmt";
+import While from "../statements/while";
 import { isNumber, isString } from "../util";
 import Visitor from "./visitor";
 
@@ -27,6 +28,14 @@ class Interpreter extends Visitor<string | number | boolean | null> {
 
     public execute(stmt: Stmt): void {
         stmt.accept(this);
+    }
+
+    public visitWhileStmt(stmt: While): string | number | boolean | null {
+        while (this.isTruthy(this.evaluate(stmt.condition))) {
+            this.execute(stmt.body);
+        }
+
+        return null;
     }
 
     public visitLogicalExpr(expr: Logical): string | number | boolean | null {
