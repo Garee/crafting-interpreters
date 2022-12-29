@@ -1,11 +1,12 @@
 import Environment from "../environment";
 import ReturnError from "../errors/return-error";
+import Instance from "../instance";
 import Fun from "../statements/fun";
 import { LoxValue } from "../types";
 import Interpreter from "../visitors/interpreter";
 import Callable from "./callable";
 
-class Function extends Callable {
+class LoxFunction extends Callable {
     private readonly declaration: Fun;
     private readonly closure: Environment;
 
@@ -31,6 +32,12 @@ class Function extends Callable {
         return null;
     }
 
+    public bind(instance: Instance): LoxFunction {
+        const env = new Environment(this.closure);
+        env.define("this", instance);
+        return new LoxFunction(this.declaration, env);
+    }
+
     public arity(): number {
         return this.declaration.params.length;
     }
@@ -40,4 +47,4 @@ class Function extends Callable {
     }
 }
 
-export default Function;
+export default LoxFunction;

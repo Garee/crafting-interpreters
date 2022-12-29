@@ -18,7 +18,7 @@ class Instance {
 
         const method = this.cls.findMethod(property.lexeme);
         if (method) {
-            return method;
+            return method.bind(this);
         }
 
         throw new RuntimeError(

@@ -14,7 +14,8 @@ import Get from "../expressions/get";
 import Grouping from "../expressions/grouping";
 import Literal from "../expressions/literal";
 import Logical from "../expressions/logical";
-import SetExpr from "../expressions/setter";
+import SetExpr from "../expressions/set";
+import This from "../expressions/this";
 import Unary from "../expressions/unary";
 import Var from "../expressions/var";
 import Instance from "../instance";
@@ -55,11 +56,16 @@ class Interpreter extends Visitor<LoxValue> {
         this.locals.set(expr, scopeDepth);
     }
 
+    public visitThisExpr(expr: This): LoxValue {
+        return this.lookupVar(expr.keyword, expr);
+    }
+
     public visitSetExpr(expr: SetExpr): LoxValue {
         const object = this.evaluate(expr.object);
         if (object instanceof Instance) {
             const val = this.evaluate(expr.value);
             object.set(expr.name, val);
+            return null;
         }
 
         throw new RuntimeError(expr.name, "Only instances have fields.");

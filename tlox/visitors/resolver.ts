@@ -8,7 +8,8 @@ import Get from "../expressions/get";
 import Grouping from "../expressions/grouping";
 import Literal from "../expressions/literal";
 import Logical from "../expressions/logical";
-import SetExpr from "../expressions/setter";
+import SetExpr from "../expressions/set";
+import This from "../expressions/this";
 import Unary from "../expressions/unary";
 import Var from "../expressions/var";
 import Block from "../statements/block";
@@ -35,6 +36,10 @@ class Resolver extends Visitor<void> {
         this.interpreter = interpreter;
     }
 
+    public visitThisExpr(expr: This): void {
+        this.resolveLocal(expr, expr.keyword);
+    }
+
     public visitSetExpr(expr: SetExpr): void {
         this.resolveExpr(expr.value);
         this.resolveExpr(expr.object);
@@ -46,12 +51,17 @@ class Resolver extends Visitor<void> {
 
     public visitClassStmt(stmt: Class): void {
         this.declare(stmt.name);
+        this.define(stmt.name);
+        this.beginScope();
+
+        const scope = this.scopes[this.scopes.length - 1];
+        scope.set("this", true);
 
         stmt.methods.forEach((m) => {
             this.resolveFunction(m, FunctionType.Method);
         });
 
-        this.define(stmt.name);
+        this.endScope();
     }
 
     public visitBinaryExpr(expr: Binary): void {

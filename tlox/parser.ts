@@ -8,7 +8,8 @@ import Get from "./expressions/get";
 import Grouping from "./expressions/grouping";
 import Literal from "./expressions/literal";
 import Logical from "./expressions/logical";
-import SetExpr from "./expressions/setter";
+import SetExpr from "./expressions/set";
+import This from "./expressions/this";
 import Unary from "./expressions/unary";
 import Var from "./expressions/var";
 import Block from "./statements/block";
@@ -458,6 +459,10 @@ class Parser {
 
         if (this.match(TokenType.Identifier)) {
             return new Var(this.previous());
+        }
+
+        if (this.match(TokenType.This)) {
+            return new This(this.previous());
         }
 
         this.handleError(this.peek(), "Expected an expression.");

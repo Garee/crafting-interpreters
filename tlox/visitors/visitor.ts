@@ -5,7 +5,8 @@ import Get from "../expressions/get";
 import Grouping from "../expressions/grouping";
 import Literal from "../expressions/literal";
 import Logical from "../expressions/logical";
-import SetExpr from "../expressions/setter";
+import SetExpr from "../expressions/set";
+import This from "../expressions/this";
 import Unary from "../expressions/unary";
 import Var from "../expressions/var";
 import Block from "../statements/block";
@@ -29,6 +30,7 @@ abstract class Visitor<T> {
     abstract visitVarExpr(expr: Var): T;
     abstract visitGetExpr(expr: Get): T;
     abstract visitSetExpr(expr: SetExpr): T;
+    abstract visitThisExpr(expr: This): T;
     abstract visitPrintStmt(stmt: Print): T;
     abstract visitExprStmt(stmt: ExprStmt): T;
     abstract visitVarStmt(stmt: VarStmt): T;
