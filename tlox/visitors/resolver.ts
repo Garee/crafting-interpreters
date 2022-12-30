@@ -63,6 +63,18 @@ class Resolver extends Visitor<void> {
 
         this.declare(stmt.name);
         this.define(stmt.name);
+
+        if (stmt.supercls) {
+            if (stmt.supercls.name.lexeme === stmt.name.lexeme) {
+                throw new ResolveError(
+                    stmt.supercls.name,
+                    "A class can't inherit from itself."
+                );
+            }
+
+            this.resolveExpr(stmt.supercls);
+        }
+
         this.beginScope();
 
         const scope = this.scopes[this.scopes.length - 1];

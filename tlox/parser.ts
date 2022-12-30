@@ -122,6 +122,13 @@ class Parser {
 
     private classDeclaration(): Class | undefined {
         const name = this.consume(TokenType.Identifier);
+
+        let supercls: Var | undefined;
+        if (this.match(TokenType.Less)) {
+            this.consume(TokenType.Identifier);
+            supercls = new Var(this.previous());
+        }
+
         this.consume(TokenType.LeftBrace);
 
         const methods: Fun[] = [];
@@ -134,7 +141,7 @@ class Parser {
 
         this.consume(TokenType.RightBrace);
         if (name) {
-            return new Class(name, methods);
+            return new Class(name, methods, supercls);
         }
     }
 

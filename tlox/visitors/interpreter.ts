@@ -83,6 +83,19 @@ class Interpreter extends Visitor<LoxValue> {
     public visitClassStmt(stmt: ClassStmt): LoxValue {
         this.environment.define(stmt.name.lexeme, null);
 
+        let supercls: Class | undefined;
+        if (stmt.supercls) {
+            const result = this.evaluate(stmt.supercls);
+            if (!(result instanceof Class)) {
+                throw new RuntimeError(
+                    stmt.supercls.name,
+                    "Superclass must be a class."
+                );
+            } else {
+                supercls = result;
+            }
+        }
+
         const methods = stmt.methods.reduce((acc, m) => {
             const isConstructor = m.name.lexeme === "init";
             acc.set(
@@ -92,7 +105,7 @@ class Interpreter extends Visitor<LoxValue> {
             return acc;
         }, new Map<string, LoxFunction>());
 
-        const cls = new Class(stmt.name.lexeme, methods);
+        const cls = new Class(stmt.name.lexeme, methods, supercls);
         this.environment.assign(stmt.name, cls);
 
         return null;
