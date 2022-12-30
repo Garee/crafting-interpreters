@@ -4,7 +4,7 @@ import { LoxValue } from "./types";
 
 class Environment {
     private values = new Map<string, LoxValue>();
-    private enclosing?: Environment;
+    public enclosing?: Environment;
 
     constructor(enclosing?: Environment) {
         this.enclosing = enclosing;

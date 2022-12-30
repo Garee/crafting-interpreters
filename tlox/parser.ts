@@ -9,6 +9,7 @@ import Grouping from "./expressions/grouping";
 import Literal from "./expressions/literal";
 import Logical from "./expressions/logical";
 import SetExpr from "./expressions/set";
+import Super from "./expressions/super";
 import This from "./expressions/this";
 import Unary from "./expressions/unary";
 import Var from "./expressions/var";
@@ -470,6 +471,15 @@ class Parser {
 
         if (this.match(TokenType.This)) {
             return new This(this.previous());
+        }
+
+        if (this.match(TokenType.Super)) {
+            const keyword = this.previous();
+            this.consume(TokenType.Dot);
+            const method = this.consume(TokenType.Identifier);
+            if (method) {
+                return new Super(keyword, method);
+            }
         }
 
         this.handleError(this.peek(), "Expected an expression.");

@@ -15,6 +15,7 @@ import Grouping from "../expressions/grouping";
 import Literal from "../expressions/literal";
 import Logical from "../expressions/logical";
 import SetExpr from "../expressions/set";
+import Super from "../expressions/super";
 import This from "../expressions/this";
 import Unary from "../expressions/unary";
 import Var from "../expressions/var";
@@ -56,6 +57,36 @@ class Interpreter extends Visitor<LoxValue> {
         this.locals.set(expr, scopeDepth);
     }
 
+    public visitSuperExpr(expr: Super): LoxValue {
+        const depth = this.locals.get(expr);
+        if (depth !== undefined) {
+            const supercls = this.environment.getAt(
+                new Token(TokenType.Super, "super", null, 0),
+                depth
+            );
+            if (supercls instanceof Class) {
+                const object = this.environment.getAt(
+                    new Token(TokenType.This, "this", null, 0),
+                    depth - 1
+                );
+
+                if (object instanceof Instance) {
+                    const method = supercls.findMethod(expr.method.lexeme);
+                    if (method) {
+                        return method.bind(object);
+                    }
+
+                    throw new RuntimeError(
+                        expr.method,
+                        `Undefined property '${expr.method.lexeme}'.`
+                    );
+                }
+            }
+        }
+
+        return null;
+    }
+
     public visitThisExpr(expr: This): LoxValue {
         return this.lookupVar(expr.keyword, expr);
     }
@@ -94,6 +125,9 @@ class Interpreter extends Visitor<LoxValue> {
             } else {
                 supercls = result;
             }
+
+            this.environment = new Environment(this.environment);
+            this.environment.define("super", supercls);
         }
 
         const methods = stmt.methods.reduce((acc, m) => {
@@ -106,6 +140,9 @@ class Interpreter extends Visitor<LoxValue> {
         }, new Map<string, LoxFunction>());
 
         const cls = new Class(stmt.name.lexeme, methods, supercls);
+        if (supercls && this.environment.enclosing) {
+            this.environment = this.environment.enclosing;
+        }
         this.environment.assign(stmt.name, cls);
 
         return null;

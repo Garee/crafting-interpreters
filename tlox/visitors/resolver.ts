@@ -9,6 +9,7 @@ import Grouping from "../expressions/grouping";
 import Literal from "../expressions/literal";
 import Logical from "../expressions/logical";
 import SetExpr from "../expressions/set";
+import Super from "../expressions/super";
 import This from "../expressions/this";
 import Unary from "../expressions/unary";
 import Var from "../expressions/var";
@@ -35,6 +36,24 @@ class Resolver extends Visitor<void> {
     constructor(interpreter: Interpreter) {
         super();
         this.interpreter = interpreter;
+    }
+
+    public visitSuperExpr(expr: Super): void {
+        if (this.currentClass === ClassType.None) {
+            throw new ResolveError(
+                expr.keyword,
+                "Can't use 'super' outside of a class."
+            );
+        }
+
+        if (this.currentClass !== ClassType.Subclass) {
+            throw new ResolveError(
+                expr.keyword,
+                "Can't use 'super' in a class with no superclass."
+            );
+        }
+
+        this.resolveLocal(expr, expr.keyword);
     }
 
     public visitThisExpr(expr: This): void {
@@ -72,7 +91,12 @@ class Resolver extends Visitor<void> {
                 );
             }
 
+            this.currentClass = ClassType.Subclass;
             this.resolveExpr(stmt.supercls);
+
+            this.beginScope();
+            const scope = this.scopes[this.scopes.length - 1];
+            scope.set("super", true);
         }
 
         this.beginScope();
@@ -90,6 +114,10 @@ class Resolver extends Visitor<void> {
         });
 
         this.endScope();
+
+        if (stmt.supercls) {
+            this.endScope();
+        }
 
         this.currentClass = enclosingClass;
     }

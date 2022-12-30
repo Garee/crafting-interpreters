@@ -50,4 +50,5 @@ export enum FunctionType {
 export enum ClassType {
     None,
     Class,
+    Subclass,
 }
