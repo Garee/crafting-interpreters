@@ -50,3 +50,8 @@ export enum ClassType {
     Class,
     Subclass,
 }
+
+export enum ErrorType {
+    Default,
+    Runtime,
+}

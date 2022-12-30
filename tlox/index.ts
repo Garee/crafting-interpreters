@@ -1,3 +1,4 @@
+import { ErrorType } from "./enums";
 import TLox from "./tlox";
 
 if (process.argv.length > 3) {
@@ -10,8 +11,8 @@ const tlox = new TLox();
 if (process.argv.length == 3) {
     const script: string = process.argv[2];
     tlox.runScript(script);
-    if (tlox.hasError) {
-        process.exit(tlox.hasRuntimeError ? 70 : 65);
+    if (tlox.error) {
+        process.exit(tlox.error === ErrorType.Runtime ? 70 : 65);
     }
 } else {
     tlox.prompt();
