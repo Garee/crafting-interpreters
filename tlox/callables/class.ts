@@ -1,4 +1,4 @@
-import Instance from "../instance";
+import Instance from "../oo/instance";
 import { LoxValue } from "../types";
 import Interpreter from "../visitors/interpreter";
 import Callable from "./callable";

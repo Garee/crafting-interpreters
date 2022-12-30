@@ -1,5 +1,5 @@
+import Token from "../core/token";
 import Expr from "../expressions/expr";
-import Token from "../token";
 import Visitor from "../visitors/visitor";
 import Stmt from "./stmt";
 

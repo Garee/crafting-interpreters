@@ -1,9 +1,9 @@
+import Environment from "../core/environment";
+import Token from "../core/token";
 import { TokenType } from "../enums";
-import Environment from "../environment";
 import ReturnError from "../errors/return-error";
-import Instance from "../instance";
+import Instance from "../oo/instance";
 import Fun from "../statements/fun";
-import Token from "../token";
 import { LoxValue } from "../types";
 import Interpreter from "../visitors/interpreter";
 import Callable from "./callable";

@@ -1,4 +1,4 @@
-import Token from "../token";
+import Token from "../core/token";
 
 class ResolveError extends Error {
     public token: Token;

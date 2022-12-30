@@ -1,6 +1,6 @@
-import RuntimeError from "./errors/runtime-error";
+import RuntimeError from "../errors/runtime-error";
+import { LoxValue } from "../types";
 import Token from "./token";
-import { LoxValue } from "./types";
 
 class Environment {
     private values = new Map<string, LoxValue>();

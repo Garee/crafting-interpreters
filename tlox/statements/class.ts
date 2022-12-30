@@ -1,5 +1,5 @@
+import Token from "../core/token";
 import Var from "../expressions/var";
-import Token from "../token";
 import Visitor from "../visitors/visitor";
 import Fun from "./fun";
 import Stmt from "./stmt";

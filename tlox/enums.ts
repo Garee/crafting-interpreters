@@ -41,14 +41,12 @@ export enum TokenType {
 }
 
 export enum FunctionType {
-    None,
     Function,
     Constructor,
     Method,
 }
 
 export enum ClassType {
-    None,
     Class,
     Subclass,
 }

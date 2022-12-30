@@ -1,4 +1,4 @@
-import { TokenType } from "./enums";
+import { TokenType } from "../enums";
 
 class Token {
     public type: TokenType;

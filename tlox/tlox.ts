@@ -1,11 +1,11 @@
 import { readFile } from "fs/promises";
 import { createInterface } from "readline/promises";
+import Parser from "./core/parser";
+import Scanner from "./core/scanner";
 import ParseError from "./errors/parse-error";
 import ResolveError from "./errors/resolve-error";
 import RuntimeError from "./errors/runtime-error";
 import ScanError from "./errors/scan-error";
-import Parser from "./parser";
-import Scanner from "./scanner";
 import Interpreter from "./visitors/interpreter";
 import Resolver from "./visitors/resolver";
 

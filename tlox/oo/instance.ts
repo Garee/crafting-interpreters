@@ -1,7 +1,7 @@
-import Class from "./callables/class";
-import RuntimeError from "./errors/runtime-error";
-import Token from "./token";
-import { LoxValue } from "./types";
+import Class from "../callables/class";
+import Token from "../core/token";
+import RuntimeError from "../errors/runtime-error";
+import { LoxValue } from "../types";
 
 class Instance {
     private cls: Class;

@@ -1,4 +1,4 @@
-import Token from "../token";
+import Token from "../core/token";
 import Visitor from "../visitors/visitor";
 import Block from "./block";
 import Stmt from "./stmt";

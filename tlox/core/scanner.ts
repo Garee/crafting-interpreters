@@ -1,7 +1,7 @@
-import { TokenType } from "./enums";
-import ScanError from "./errors/scan-error";
+import { TokenType } from "../enums";
+import ScanError from "../errors/scan-error";
+import { isAlphaNumeric, isDigit } from "../util";
 import Token from "./token";
-import { isAlphaNumeric, isDigit } from "./util";
 
 class Scanner {
     private source: string;

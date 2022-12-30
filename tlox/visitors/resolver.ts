@@ -1,3 +1,4 @@
+import Token from "../core/token";
 import { ClassType, FunctionType } from "../enums";
 import ResolveError from "../errors/resolve-error";
 import Assignment from "../expressions/assignment";
@@ -23,15 +24,14 @@ import Return from "../statements/return";
 import Stmt from "../statements/stmt";
 import VarStmt from "../statements/var-stmt";
 import While from "../statements/while";
-import Token from "../token";
 import Interpreter from "./interpreter";
 import Visitor from "./visitor";
 
 class Resolver extends Visitor<void> {
     private readonly interpreter: Interpreter;
     private scopes: Map<string, boolean>[] = [];
-    private currentFunction = FunctionType.None;
-    private currentClass = ClassType.None;
+    private currentFunction?: FunctionType;
+    private currentClass?: ClassType;
 
     constructor(interpreter: Interpreter) {
         super();
@@ -39,7 +39,7 @@ class Resolver extends Visitor<void> {
     }
 
     public visitSuperExpr(expr: Super): void {
-        if (this.currentClass === ClassType.None) {
+        if (!this.currentClass) {
             throw new ResolveError(
                 expr.keyword,
                 "Can't use 'super' outside of a class."
@@ -210,7 +210,7 @@ class Resolver extends Visitor<void> {
     }
 
     public visitReturnStmt(stmt: Return): void {
-        if (this.currentFunction === FunctionType.None) {
+        if (!this.currentFunction) {
             throw new ResolveError(
                 stmt.keyword,
                 "Can't return from top-level code."
