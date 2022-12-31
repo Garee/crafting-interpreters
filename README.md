@@ -55,16 +55,10 @@ Lint:
 npm run lint
 ```
 
-Hot compile:
+Hot compile and typecheck:
 
 ```shell
 npm run dev
-```
-
-Typecheck:
-
-```shell
-npm run tsc:watch
 ```
 
 Test:

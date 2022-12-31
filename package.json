@@ -8,7 +8,8 @@
     "description": "Code and resources for the book craftinginterpreters.com",
     "main": "build/index.js",
     "scripts": {
-        "dev": "NODE_ENV=development node esbuild.js",
+        "dev": "concurrently 'npm:build:dev' 'npm:tsc:watch'",
+        "build:dev": "NODE_ENV=development node esbuild.js",
         "build": "NODE_ENV=production node esbuild.js",
         "clean": "rm -rf build",
         "lint": "eslint -c .eslintrc.json --fix tlox/**/*.ts",
@@ -24,6 +25,7 @@
         "@types/node": "^18.11.18",
         "@typescript-eslint/eslint-plugin": "^5.47.1",
         "@typescript-eslint/parser": "^5.47.1",
+        "concurrently": "^7.6.0",
         "esbuild": "^0.16.11",
         "eslint": "^8.30.0",
         "eslint-config-prettier": "^8.5.0",
