@@ -29,7 +29,7 @@ class TLox {
         }
     }
 
-    private run(code: string): void {
+    public run(code: string): void {
         try {
             const scanner = new Scanner(code);
             const tokens = scanner.scanTokens();
