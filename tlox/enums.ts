@@ -41,17 +41,17 @@ export enum TokenType {
 }
 
 export enum FunctionType {
-    Function,
-    Constructor,
-    Method,
+    Function = "function",
+    Constructor = "constructor",
+    Method = "method",
 }
 
 export enum ClassType {
-    Class,
-    Subclass,
+    Class = "class",
+    Subclass = "subclass",
 }
 
 export enum ErrorType {
-    Default,
-    Runtime,
+    Default = "default",
+    Runtime = "runtime",
 }

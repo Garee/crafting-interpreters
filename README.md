@@ -26,10 +26,24 @@ Welcome to the Lox interpreter!
 Run a script:
 
 ```shell
-npm run tlox examples/1.lox
+cat examples5/lox
+fun fib(n) {
+  if (n <= 1) return n;
+  return fib(n - 2) + fib(n - 1);
+}
 
-one
-true
+for (var i = 0; i < 5; i = i + 1) {
+  print fib(i);
+}
+```
+
+```shell
+npm run tlox examples/5.lox
+
+0
+1
+1
+2
 3
 ```
 
@@ -51,4 +65,10 @@ Typecheck:
 
 ```shell
 npm run tsc:watch
+```
+
+Test:
+
+```shell
+npm run test
 ```
