@@ -2,7 +2,9 @@
 
 Code and resources for the book [craftinginterpreters.com](https://craftinginterpreters.com/introduction.html)
 
-## Install
+## TLox
+
+### Install
 
 Requires [Node.js](https://nodejs.org/en/) `>=18`.
 
@@ -10,7 +12,7 @@ Requires [Node.js](https://nodejs.org/en/) `>=18`.
 npm run build
 ```
 
-## Usage
+### Usage
 
 REPL:
 
@@ -47,7 +49,7 @@ npm run tlox examples/5.lox
 3
 ```
 
-## Development
+### Development
 
 Lint:
 
@@ -65,4 +67,20 @@ Test:
 
 ```shell
 npm run test
+```
+
+## CLox
+
+Requires [gcc](https://gcc.gnu.org/) and [Make](https://www.gnu.org/software/make/).
+
+Compile:
+
+```shell
+make
+```
+
+Run:
+
+```shell
+make clox
 ```
