@@ -17,10 +17,11 @@ typedef struct {
     int capacity;
     uint8_t *code;
     ValueArray constants;
+    int* lines;
 } Chunk;
 
 void initChunk(Chunk *chunk);
-void writeChunk(Chunk *chunk, uint8_t byte);
+void writeChunk(Chunk *chunk, uint8_t byte, int line);
 void freeChunk(Chunk *chunk);
 int addConstant(Chunk* chunk, Value value);
 
