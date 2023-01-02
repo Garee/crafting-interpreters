@@ -1,8 +1,8 @@
 # tool macros
 CC ?= gcc
 CXX ?= gcc
-CFLAGS := -Wall -Wextra -Werror
-CXXFLAGS := -Wall -Wextra -Werror
+CFLAGS := -Wall -Wextra -Werror -Wshadow -Wdouble-promotion -Wformat=2 -Wundef -Wpadded -fno-common -g3
+CXXFLAGS := -Wall -Wextra -Werror -Wshadow -Wdouble-promotion -Wformat=2 -Wundef -Wpadded -fno-common -g3
 DBGFLAGS := -g
 COBJFLAGS := $(CFLAGS) -c
 
