@@ -33,7 +33,7 @@ int disassembleInstruction(Chunk* chunk, int offset) {
         printf("%4d ", chunk->lines[offset]);
     }
 
-    u_int8_t instr = chunk->code[offset];
+    uint8_t instr = chunk->code[offset];
     switch (instr) {
         case OP_CONSTANT:
             return constantInstruction("OP_CONSTANT", chunk, offset);
