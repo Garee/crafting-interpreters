@@ -45,10 +45,12 @@ static void runtimeError(const char* format, ...) {
 void initVM() {
     resetStack();
     vm.objects = NULL;
+    initTable(&vm.globals);
     initTable(&vm.strings);
 }
 
 void freeVM() {
+    freeTable(&vm.globals);
     freeTable(&vm.strings);
     freeObjects();
 }
@@ -90,7 +92,6 @@ static InterpretResult run() {
         double a = AS_NUMBER(pop());                      \
         push(valueType(a op b));                          \
     } while (false)
-
     while (true) {
 #ifdef DEBUG_TRACE_EXECUTION
         printf("          ");
@@ -166,9 +167,40 @@ static InterpretResult run() {
                 }
                 push(NUMBER_VAL(-AS_NUMBER(pop())));
                 break;
-            case OP_RETURN:
+            case OP_POP:
+                pop();
+                break;
+            case OP_GET_GLOBAL: {
+                ObjString* name = AS_STRING(read_constant());
+                Value value;
+                if (!tableGet(&vm.globals, name, &value)) {
+                    runtimeError("Undefined variable '%s'.", name->chars);
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                push(value);
+                break;
+            }
+            case OP_SET_GLOBAL: {
+                ObjString* name = AS_STRING(read_constant());
+                if (tableSet(&vm.globals, name, peek(0))) {
+                    tableDelete(&vm.globals, name);
+                    runtimeError("Undefined variable '%s'.", name->chars);
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                break;
+            }
+            case OP_DEFINE_GLOBAL: {
+                ObjString* name = AS_STRING(read_constant());
+                tableSet(&vm.globals, name, peek(0));
+                pop();
+                break;
+            }
+            case OP_PRINT: {
                 printValue(pop());
                 printf("\n");
+                break;
+            }
+            case OP_RETURN:
                 return INTERPRET_OK;
         }
     }
