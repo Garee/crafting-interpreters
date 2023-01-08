@@ -189,6 +189,16 @@ static InterpretResult run() {
                 }
                 break;
             }
+            case OP_GET_LOCAL: {
+                uint8_t slot = read_byte();
+                push(vm.stack[slot]);
+                break;
+            }
+            case OP_SET_LOCAL: {
+                uint8_t slot = read_byte();
+                vm.stack[slot] = peek(0);
+                break;
+            }
             case OP_DEFINE_GLOBAL: {
                 ObjString* name = AS_STRING(read_constant());
                 tableSet(&vm.globals, name, peek(0));
