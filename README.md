@@ -84,3 +84,7 @@ Run:
 ```shell
 make clox
 ```
+
+```shell
+./build/clox/bin/clox examples/13.lox
+```
