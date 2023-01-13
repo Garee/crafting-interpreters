@@ -25,5 +25,8 @@ extern VM vm;
 
 void* reallocate(void* pointer, size_t prevSize, size_t nextSize);
 void freeObjects();
+void collectGarbage();
+void markObject(Obj* object);
+void markValue(Value value);
 
 #endif
